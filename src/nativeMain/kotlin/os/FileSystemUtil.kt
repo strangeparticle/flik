@@ -2,15 +2,18 @@ package os
 
 import kotlinx.cinterop.ByteVar
 import kotlinx.cinterop.ExperimentalForeignApi
+import kotlinx.cinterop.addressOf
 import kotlinx.cinterop.allocArray
 import kotlinx.cinterop.convert
 import kotlinx.cinterop.memScoped
 import kotlinx.cinterop.readBytes
+import kotlinx.cinterop.usePinned
 import platform.posix.F_OK
 import platform.posix.access
 import platform.posix.fclose
 import platform.posix.fopen
 import platform.posix.fread
+import platform.posix.fwrite
 
 /** Reads an entire file as UTF-8 text. Throws if the file cannot be opened. */
 @OptIn(ExperimentalForeignApi::class)
@@ -28,6 +31,22 @@ fun readFileText(path: String): String {
             }
         }
         return builder.toString()
+    } finally {
+        fclose(file)
+    }
+}
+
+/** Writes [text] to [path] as UTF-8, truncating any existing file. */
+@OptIn(ExperimentalForeignApi::class)
+fun writeFileText(path: String, text: String) {
+    val file = fopen(path, "wb") ?: throw RuntimeException("cannot write file: $path")
+    try {
+        val bytes = text.encodeToByteArray()
+        if (bytes.isNotEmpty()) {
+            bytes.usePinned { pinned ->
+                fwrite(pinned.addressOf(0), 1.convert(), bytes.size.convert(), file)
+            }
+        }
     } finally {
         fclose(file)
     }

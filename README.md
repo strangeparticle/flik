@@ -1,60 +1,58 @@
 # flik
 
-A command-line app written in pure Kotlin/Native (no JVM runtime) using
-[Clikt](https://ajalt.github.io/clikt/) for argument parsing. `flik` compiles to
-self-contained native binaries — the shipped executable has no JVM dependency.
+`flik` is a command-line interpreter for **Flik**, a Markdown-derived orchestration
+language. A Flik document is simultaneously human-readable release documentation and
+an executable script. Written in pure Kotlin/Native — the shipped binary has no JVM
+runtime dependency.
 
-> Note: the *build* uses Gradle and the Kotlin compiler, which run on a JVM. Only
-> the produced binaries are JVM-free.
+## Building
 
-## Requirements
+Requires a JDK (to run Gradle and the Kotlin/Native compiler) and, on macOS, a full
+**Xcode** install — the Kotlin/Native linker invokes `xcodebuild`. If `xcode-select`
+points at the Command Line Tools rather than Xcode, point the toolchain at Xcode for
+the invocation (no `sudo` needed):
 
-- A JDK (to run Gradle and the Kotlin/Native compiler)
-- macOS, Linux, or Windows host
+```sh
+DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer ./gradlew build
+```
+
+Compiled binaries land under `build/bin/<target>/<debug|release>Executable/flik.kexe`.
+
+## Usage
+
+```sh
+flik version
+flik validate <entry.flik.md>
+flik run <entry.flik.md> [--project-root <dir>]
+```
+
+- **validate** — parses an entry document, resolves its bracketed callouts to
+  sibling `.flik.md` files via name normalization, and reports structure without
+  executing anything.
+- **run** — checks prerequisites (required env vars and commands), then executes the
+  procedure in order: `back up to file`, callouts (which copy files, edit files in
+  place, run commands, and verify outputs), and `restore the repository`. Stops on
+  the first failure.
+
+A worked example lives in `examples/release-macos-dmg/` (a macOS signed/notarized
+direct-download `.dmg` release).
 
 ## Targets
 
-Native executables are produced for:
-
-- `macosArm64` (Apple Silicon)
-- `macosX64` (Intel macOS)
-- `linuxX64`
-- `mingwX64` (Windows)
-
-From an Apple Silicon Mac, `./gradlew build` compiles all four targets, but tests
-run only for the macOS targets. The Linux and Windows binaries are best verified
-on their native OS (or in CI).
-
-## Build
-
-```sh
-./gradlew build
-```
-
-Compiled binaries land under `build/bin/<target>/<debug|release>Executable/`.
-
-## Run
-
-```sh
-# Debug build for Apple Silicon
-./build/bin/macosArm64/debugExecutable/flik.kexe hello --name world
-# -> Hello, world!
-```
-
-Or run via Gradle:
-
-```sh
-./gradlew runDebugExecutableMacosArm64 --args="hello --name world"
-```
+Native executables: `macosArm64`, `macosX64`, `linuxX64`, `mingwX64`. Tests run on
+the macOS targets.
 
 ## Test
 
 ```sh
-./gradlew allTests
+DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer ./gradlew :macosArm64Test
 ```
 
 ## Project layout
 
-- `src/nativeMain/kotlin/Main.kt` — CLI entry point and command definitions
-- `src/nativeMain/kotlin/GreetingUtil.kt` — pure greeting logic (unit-tested)
-- `src/nativeTest/kotlin/GreetingTest.kt` — tests
+- `src/nativeMain/kotlin/Main.kt` — CLI entry (Clikt: `version` / `validate` / `run`)
+- `src/nativeMain/kotlin/parse/` — document parsers and callout-name normalization
+- `src/nativeMain/kotlin/model/` — document AST (entry document, procedure steps, stage commands)
+- `src/nativeMain/kotlin/run/` — execution engine and interpolation
+- `src/nativeMain/kotlin/os/` — POSIX filesystem and process helpers
+- `examples/` — Flik example documents
