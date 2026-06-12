@@ -11,11 +11,14 @@ import com.strangeparticle.flik.command.FlikExecutionException
 import com.strangeparticle.flik.os.commandIsAvailable
 import com.strangeparticle.flik.os.environmentVariable
 import com.strangeparticle.flik.os.fileExists
+import com.strangeparticle.flik.os.isDirectory
 import com.strangeparticle.flik.os.readFileText
 import com.strangeparticle.flik.os.runShellCommand
 import com.strangeparticle.flik.program.CompileResult
+import com.strangeparticle.flik.program.RootPageResolution
 import com.strangeparticle.flik.program.compile
 import com.strangeparticle.flik.program.preflight
+import com.strangeparticle.flik.program.resolveRootPage
 import com.strangeparticle.flik.run.Interpreter
 
 const val FLIK_VERSION = "0.1.0"
@@ -32,10 +35,10 @@ class Version : CliktCommand(name = "version") {
 
 /** Links the whole page graph from [file], reporting structural problems (no execution). */
 class Validate : CliktCommand(name = "validate") {
-    private val file: String by argument(name = "file", help = "Path to the root .flik.md page")
+    private val file: String by argument(name = "file", help = "A root .flik.md page, or a folder containing one")
 
     override fun run() {
-        val program = compile(file, ::readFileText, ::fileExists)
+        val program = compile(resolveOrExit(file), ::readFileText, ::fileExists)
         if (program.diagnostics.isNotEmpty()) {
             reportDiagnostics(program)
             throw ProgramResult(1)
@@ -47,14 +50,14 @@ class Validate : CliktCommand(name = "validate") {
 
 /** Links, preflights all prerequisites at once, then executes the compiled program. */
 class Run : CliktCommand(name = "run") {
-    private val file: String by argument(name = "file", help = "Path to the root .flik.md page")
+    private val file: String by argument(name = "file", help = "A root .flik.md page, or a folder containing one")
     private val projectRoot: String by option(
         "--project-root",
         help = "Root of the project Flik operates on (default: current directory)",
     ).default(".")
 
     override fun run() {
-        val program = compile(file, ::readFileText, ::fileExists)
+        val program = compile(resolveOrExit(file), ::readFileText, ::fileExists)
         if (program.diagnostics.isNotEmpty()) {
             reportDiagnostics(program)
             throw ProgramResult(1)
@@ -85,10 +88,10 @@ class Run : CliktCommand(name = "run") {
 
 /** Links, then prints the page graph, aggregated prerequisites, and structure (no execution). */
 class Explain : CliktCommand(name = "explain") {
-    private val file: String by argument(name = "file", help = "Path to the root .flik.md page")
+    private val file: String by argument(name = "file", help = "A root .flik.md page, or a folder containing one")
 
     override fun run() {
-        val program = compile(file, ::readFileText, ::fileExists)
+        val program = compile(resolveOrExit(file), ::readFileText, ::fileExists)
         if (program.diagnostics.isNotEmpty()) {
             reportDiagnostics(program)
             throw ProgramResult(1)
@@ -114,6 +117,16 @@ class Explain : CliktCommand(name = "explain") {
         }
     }
 }
+
+/** Resolves a target (page or folder) to a root page path, or exits with a message. */
+private fun CliktCommand.resolveOrExit(target: String): String =
+    when (val resolution = resolveRootPage(target, ::isDirectory, ::fileExists)) {
+        is RootPageResolution.Found -> resolution.path
+        is RootPageResolution.NotFound -> {
+            echo(resolution.message, err = true)
+            throw ProgramResult(1)
+        }
+    }
 
 private fun CliktCommand.reportDiagnostics(program: CompileResult) {
     echo("problems in the page graph:", err = true)

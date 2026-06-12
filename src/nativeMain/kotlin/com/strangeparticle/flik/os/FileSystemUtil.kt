@@ -10,10 +10,12 @@ import kotlinx.cinterop.readBytes
 import kotlinx.cinterop.usePinned
 import platform.posix.F_OK
 import platform.posix.access
+import platform.posix.closedir
 import platform.posix.fclose
 import platform.posix.fopen
 import platform.posix.fread
 import platform.posix.fwrite
+import platform.posix.opendir
 
 /** Reads an entire file as UTF-8 text. Throws if the file cannot be opened. */
 @OptIn(ExperimentalForeignApi::class)
@@ -55,6 +57,14 @@ fun writeFileText(path: String, text: String) {
 /** True if a filesystem entry exists at [path]. */
 @OptIn(ExperimentalForeignApi::class)
 fun fileExists(path: String): Boolean = access(path, F_OK) == 0
+
+/** True if [path] is a directory. */
+@OptIn(ExperimentalForeignApi::class)
+fun isDirectory(path: String): Boolean {
+    val dir = opendir(path) ?: return false
+    closedir(dir)
+    return true
+}
 
 /** The directory containing [path], or "." when [path] has no directory component. */
 fun parentDirectoryOf(path: String): String {
