@@ -91,7 +91,8 @@ Environment Variables:               # several of a kind → grouped label + lis
 | ``* shell command: `cmd` `` (or `Shell Commands:` + `* cmd` bullets) | prerequisite | required commands on PATH — checked on entry |
 | `[Page Name]` | page invocation | run the page whose filename is derived from the name |
 | ``Copy file from: `src` to: `dst` `` | command | copy (`src` relative to *this* page, `dst` to the project root) |
-| `Run command:` + a fenced ```` ```shell ```` block | command | run a shell command; non-zero exit fails the run |
+| `Run command:` + a fenced ```` ```shell ```` block, or ``* run command: `cmd` `` | command | run a shell command; non-zero exit fails the run; its output is remembered |
+| ``* expect to see `text` `` | command | assert the previous command's output contains `text` |
 | ``Expect file to exist: `path` `` | command | assert a file exists |
 | ``In file: `path` `` + `Find this section:` / `Replace it with:` blocks | command | in-place find/replace edit |
 | `Run these checks in parallel:` then `* … run `cmd` … contain `x`` bullets | command | run each check; assert output contains `x` when stated |

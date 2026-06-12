@@ -19,6 +19,9 @@ class ExecutionContext(
     private val frames = ArrayDeque<PageFrame>()
     private val backups = mutableListOf<BackupRecord>()
 
+    /** Combined output of the most recently run command, for `expect to see` to assert against. */
+    var lastCommandOutput: String? = null
+
     /** Identity (file path) of the page currently executing. */
     val currentPageId: String get() = frames.last().pageId
 

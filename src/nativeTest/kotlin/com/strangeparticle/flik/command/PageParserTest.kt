@@ -7,6 +7,7 @@ import kotlin.test.assertFailsWith
 import com.strangeparticle.flik.command.commands.BackUpCommand
 import com.strangeparticle.flik.command.commands.EditInPlaceCommand
 import com.strangeparticle.flik.command.commands.ExpectFileCommand
+import com.strangeparticle.flik.command.commands.ExpectToSeeCommand
 import com.strangeparticle.flik.command.commands.RestoreCommand
 import com.strangeparticle.flik.command.commands.RunShellCommand
 import com.strangeparticle.flik.parse.FlikParseException
@@ -98,6 +99,15 @@ class PageParserTest {
         val page = parsePage("# P\n* flik version: `0.1`\n\n* restore from backup `older.tar.gz`")
         val restore = assertIs<RestoreCommand>(page.elements.single())
         assertEquals("older.tar.gz", restore.backupName)
+    }
+
+    @Test
+    fun parsesInlineRunCommandAndExpectToSee() {
+        val page = parsePage("# P\n* flik version: `0.1`\n\n* run command: `echo hi`\n* expect to see `hi`")
+        assertEquals(2, page.elements.size)
+        assertEquals("echo hi", (page.elements[0] as RunShellCommand).command)
+        val expect = assertIs<ExpectToSeeCommand>(page.elements[1])
+        assertEquals("hi", expect.expected)
     }
 
     @Test

@@ -44,8 +44,5 @@ mkdir -p ~/.local/bin && cp build/bin/macosArm64/releaseExecutable/flik.kexe ~/.
 
 ## Verify the installed binary
 
-Run command:
-
-```shell
-~/.local/bin/flik version
-```
+* run command: `~/.local/bin/flik version`
+* expect to see `flik`
