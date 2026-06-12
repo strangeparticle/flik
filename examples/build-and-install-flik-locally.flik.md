@@ -1,14 +1,9 @@
 # Build and Install flik Locally
 
 Builds the optimized native `flik` binary and installs it onto your `PATH` at
-`~/.local/bin/flik`. Run this from the `flik` repository:
-
-```shell
-flik run examples/build-and-install-flik-locally.flik.md --project-root .
-```
+`~/.local/bin/flik`.
 
 # Pre-requisites
-* flik version: `0.1`
 * shell command: `./gradlew`
 
 # Procedure
@@ -46,3 +41,7 @@ mkdir -p ~/.local/bin && cp build/bin/macosArm64/releaseExecutable/flik.kexe ~/.
 
 * run command: `~/.local/bin/flik version`
 * expect to see `flik`
+
+---
+
+_Authored for compatibility with Flik `v0.1`._

@@ -41,11 +41,11 @@ class PageValidatorTest {
     }
 
     @Test
-    fun flagsMissingFlikVersion() {
+    fun flagsMissingFlikVersionFooter() {
         val problems = findPageProblems(
             page(emptyList(), flikVersion = null),
             pageFileExists = { true },
         )
-        assertTrue(problems.any { it.contains("flik version") })
+        assertTrue(problems.any { it.contains("Flik version") })
     }
 }

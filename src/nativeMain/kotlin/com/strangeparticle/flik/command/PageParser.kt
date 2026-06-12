@@ -6,15 +6,23 @@ import com.strangeparticle.flik.parse.FlikParseException
 private const val ENV_LABEL = "Environment Variables:"
 private const val COMMANDS_LABEL = "Shell Commands:"
 
+// Matches `Flik `v0.1`` / `Flik v1.0.0` in the version footer. The `v` + digit
+// requirement means it does NOT match the word "version".
+private val FLIK_VERSION_REGEX = Regex("flik\\s+`?(v\\d[\\w.+\\-]*)`?", RegexOption.IGNORE_CASE)
+
 /**
- * Parses a Flik page. Prerequisites may be written two ways:
- *   - inline, one bullet each:  `* flik version: \`0.1\``,
- *     `* shell command: \`./gradlew\``, `* environment variable: \`APPLE_ID\``
- *   - grouped, for several of a kind:  a `Shell Commands:` / `Environment Variables:`
- *     label followed by a `* value` bullet list
+ * Parses a Flik page. The body is every recognized element in document order;
+ * unrecognized lines — headings, prose, blockquotes, blank lines, prerequisite
+ * bullets, the version footer — are skipped.
  *
- * The body is every recognized element in document order; unrecognized lines —
- * headings, prose, blockquotes, blank lines, prerequisite bullets — are skipped.
+ * Prerequisites (declared on any page, checked on entry) are env vars and shell
+ * commands only — Flik itself is never a prerequisite, because the page must be
+ * followable by a human or AI without Flik installed. They may be inline bullets
+ * (`* shell command: \`x\``, `* environment variable: \`X\``) or grouped under a
+ * `Shell Commands:` / `Environment Variables:` label.
+ *
+ * The Flik version the page was authored for is declared in a footer line containing
+ * `Flik \`v<version>\`` (full or partial semver: v1, v1.0.0).
  */
 fun parsePage(source: String): Page {
     val lines = source.lines()
@@ -37,7 +45,7 @@ fun parsePage(source: String): Page {
 
     return Page(
         title = title,
-        flikVersion = firstPrerequisiteValue(lines, "flik version:"),
+        flikVersion = pageFlikVersion(lines),
         requiredEnvironmentVariables =
             collectBulletsAfterLabel(lines, ENV_LABEL) +
                 inlinePrerequisiteValues(lines, "environment variable:"),
@@ -48,19 +56,20 @@ fun parsePage(source: String): Page {
     )
 }
 
-/** The value from the first `<label> value` prerequisite line (bullet or bare), or null. */
-private fun firstPrerequisiteValue(lines: List<String>, label: String): String? =
-    lines.firstNotNullOfOrNull { prerequisiteValue(bulletOrLine(it), label) }
+/** The Flik version from the page's footer (e.g. `Flik \`v0.1\``), or null. */
+private fun pageFlikVersion(lines: List<String>): String? =
+    lines.firstNotNullOfOrNull { FLIK_VERSION_REGEX.find(it)?.groupValues?.get(1) }
 
 /** Every value from `* <label> \`value\`` inline prerequisite bullets. */
 private fun inlinePrerequisiteValues(lines: List<String>, label: String): List<String> =
-    lines.mapNotNull { prerequisiteValue(bulletOrLine(it), label) }
-
-/** If [content] is `<label> value`, returns the unquoted value; otherwise null. */
-private fun prerequisiteValue(content: String, label: String): String? {
-    if (!content.startsWith(label, ignoreCase = true)) return null
-    return content.substringAfter(":").trim().trim('`').trim().ifEmpty { null }
-}
+    lines.mapNotNull { line ->
+        val content = bulletOrLine(line)
+        if (!content.startsWith(label, ignoreCase = true)) {
+            null
+        } else {
+            content.substringAfter(":").trim().trim('`').trim().ifEmpty { null }
+        }
+    }
 
 /**
  * Collects consecutive `* item` bullets that follow a `label` line. Blank lines

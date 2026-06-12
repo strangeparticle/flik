@@ -1,7 +1,6 @@
 # Release Springboard for macOS (Direct Download DMG)
 
 # Pre-requisites
-* flik version: `0.1`
 
 Environment Variables:
 * APPLE_ID
@@ -22,3 +21,7 @@ Shell Commands:
 * [Build the signed, notarized DMG]
 * [Verify the DMG signature and notarization]
 * restore the repository
+
+---
+
+_Authored for compatibility with Flik `v0.1`._

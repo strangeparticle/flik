@@ -16,7 +16,7 @@ fun findPageProblems(
     val problems = mutableListOf<String>()
 
     if (page.flikVersion == null) {
-        problems.add("missing 'flik version:' in the prerequisites section")
+        problems.add("missing the Flik version footer (add a line like: Authored for compatibility with Flik `v0.1`)")
     }
 
     for (element in page.elements) {

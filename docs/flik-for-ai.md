@@ -18,11 +18,17 @@ you point `flik run` at (the "root") is just where execution starts; structurall
 it's identical to every page it calls. A page has:
 
 - a `# Title`,
-- **prerequisites** at the top (declared on *any* page), each a `* <kind>: \`value\`` bullet, and
-- a **body**: a sequence of elements executed in **document order**.
+- optional **prerequisites** (env vars and shell commands) at the top,
+- a **body**: a sequence of elements executed in **document order**, and
+- a **footer** declaring the Flik version it was authored for.
 
 A body element is one of exactly two things: a **Command** (a built-in) or a **Page
 invocation** (a callout to another page).
+
+> **Pages must be followable without Flik.** A human reading the page, or an AI
+> following it, should be able to do the procedure by hand. So **Flik is never a
+> prerequisite**, and a page contains **no "run this with `flik`" instructions** — the
+> Flik version lives only in the footer, as an authoring note.
 
 ### Page skeleton
 
@@ -30,7 +36,6 @@ invocation** (a callout to another page).
 # Build the artifact
 
 # Pre-requisites
-* flik version: `0.1`
 * environment variable: `APPLE_ID`
 * shell command: `./gradlew`
 
@@ -62,6 +67,10 @@ Run command:
 Expect file to exist: `${{ project_root }}/app/build/release/TheThing.dmg`
 
 * restore the repository
+
+---
+
+_Authored for compatibility with Flik `v0.1`._
 `````
 
 Elements run top to bottom in the order they appear. **You do not write a "run these
@@ -74,8 +83,7 @@ kind, you may instead group them under a plural label + bullet list. Both parse.
 
 ```markdown
 # Pre-requisites
-* flik version: `0.1`
-* shell command: `./gradlew`        # one of a kind → inline
+* shell command: `./gradlew`         # one of a kind → inline
 
 Environment Variables:               # several of a kind → grouped label + list
 * APPLE_ID
@@ -86,7 +94,7 @@ Environment Variables:               # several of a kind → grouped label + lis
 
 | Form | Kind | Effect |
 |------|------|--------|
-| ``* flik version: `<x>` `` | prerequisite | the Flik version the page targets |
+| ``Authored for compatibility with Flik `v<x>` `` (in the footer) | footer | the Flik version the page was authored for — full or partial semver (`v1`, `v1.0.0`) |
 | ``* environment variable: `NAME` `` (or `Environment Variables:` + `* NAME` bullets) | prerequisite | required env vars — checked when the page is entered |
 | ``* shell command: `cmd` `` (or `Shell Commands:` + `* cmd` bullets) | prerequisite | required commands on PATH — checked on entry |
 | `[Page Name]` | page invocation | run the page whose filename is derived from the name |
@@ -118,7 +126,9 @@ prerequisite bullets) may be written as bare lines or as `*` bullets — both wo
    style), which keeps it from colliding with the plain shell/Kotlin `$VAR` and
    `${VAR}` that live in your `Run command:` and edit blocks (those pass through
    untouched).
-5. **`* flik version: \`<x>\`` is the first prerequisite bullet.**
+5. **Declare the Flik version in a footer, never as a prerequisite** — a final line
+   `_Authored for compatibility with Flik `v0.1`._` after a `---`. Pages carry no
+   `flik run` instructions; they must be followable without Flik.
 
 ## Bullets: when to use them
 
@@ -156,8 +166,8 @@ Generate a page, run `flik validate`, read the diagnostic, fix, repeat. Only the
 So you don't generate forms that won't run yet:
 
 - **Implemented:** everything in the Vocabulary table above; pages that invoke pages
-  recursively; per-page prerequisites; document-order execution; backup/restore;
-  `${{ project_root }}`.
+  recursively; per-page prerequisites; the version footer; document-order execution;
+  backup/restore; `${{ project_root }}`.
 - **Planned (do not rely on yet):** parallel execution (`Run these checks in parallel:`
   is accepted but currently runs sequentially; parallel *page* invocation isn't in
   yet); loops and conditionals over invocations; loose-whitespace matching for `Find

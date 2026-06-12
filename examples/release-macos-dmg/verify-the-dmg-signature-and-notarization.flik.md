@@ -1,6 +1,5 @@
 # Verify the DMG Signature and Notarization
 
-* flik version: `0.1`
 
 Confirm the built artifact is correctly signed by the expected Developer ID,
 accepted by Gatekeeper as notarized, and built for the expected architectures. An
@@ -30,3 +29,7 @@ Run command:
 ```shell
 hdiutil detach "/Volumes/Springboard"
 ```
+
+---
+
+_Authored for compatibility with Flik `v0.1`._

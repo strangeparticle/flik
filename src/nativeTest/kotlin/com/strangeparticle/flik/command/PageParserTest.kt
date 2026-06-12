@@ -16,7 +16,6 @@ private val SAMPLE = """
     # Sample Page
 
     # Pre-requisites
-    * flik version: `0.1`
     * shell command: `tar`
 
     Environment Variables:
@@ -53,15 +52,19 @@ private val SAMPLE = """
     Expect file to exist: `${'$'}{{ project_root }}/out.txt`
 
     * restore the repository
+
+    ---
+
+    _Authored for compatibility with Flik `v0.1`._
 """.trimIndent()
 
 class PageParserTest {
     private val page = parsePage(SAMPLE)
 
     @Test
-    fun parsesPrerequisitesInBothInlineAndGroupedForms() {
+    fun readsVersionFromFooterAndPrerequisitesFromBoth() {
         assertEquals("Sample Page", page.title)
-        assertEquals("0.1", page.flikVersion)               // inline `* flik version: ...`
+        assertEquals("v0.1", page.flikVersion)               // from the footer, not a prerequisite
         assertEquals(listOf("TOKEN"), page.requiredEnvironmentVariables)
         // grouped (Shell Commands: cp) plus inline (* shell command: tar)
         assertEquals(listOf("cp", "tar"), page.requiredShellCommands)
@@ -85,6 +88,12 @@ class PageParserTest {
     }
 
     @Test
+    fun acceptsPartialOrFullSemverInTheFooter() {
+        assertEquals("v1", parsePage("# P\n\n---\nAuthored for compatibility with Flik `v1`").flikVersion)
+        assertEquals("v1.0.2", parsePage("# P\n\n---\nAuthored for compatibility with Flik `v1.0.2`").flikVersion)
+    }
+
+    @Test
     fun mixesCommandsAndPageInvocationsWithoutASequentialDirective() {
         val backUp = page.elements[0] as BackUpCommand
         assertEquals("backup.tar.gz", backUp.fileName)
@@ -96,14 +105,14 @@ class PageParserTest {
 
     @Test
     fun parsesNamedRestoreForm() {
-        val page = parsePage("# P\n* flik version: `0.1`\n\n* restore from backup `older.tar.gz`")
+        val page = parsePage("# P\n\n* restore from backup `older.tar.gz`")
         val restore = assertIs<RestoreCommand>(page.elements.single())
         assertEquals("older.tar.gz", restore.backupName)
     }
 
     @Test
     fun parsesInlineRunCommandAndExpectToSee() {
-        val page = parsePage("# P\n* flik version: `0.1`\n\n* run command: `echo hi`\n* expect to see `hi`")
+        val page = parsePage("# P\n\n* run command: `echo hi`\n* expect to see `hi`")
         assertEquals(2, page.elements.size)
         assertEquals("echo hi", (page.elements[0] as RunShellCommand).command)
         val expect = assertIs<ExpectToSeeCommand>(page.elements[1])
