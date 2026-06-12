@@ -53,7 +53,7 @@ flik version: 0.1
 
 ## Copy assets into the project
 
-* Copy file from: `./reference/entitlements.plist` to: `app/packaging/entitlements.plist`
+* Copy file from: `./resources/entitlements.plist` to: `app/packaging/entitlements.plist`
 
 ## Edit the build file
 

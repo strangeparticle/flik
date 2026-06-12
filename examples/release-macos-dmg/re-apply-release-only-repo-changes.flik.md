@@ -16,9 +16,9 @@ App Store provisioning profiles or sandboxed entitlements.
 
 ## Copy the entitlements and ProGuard files
 
-* Copy file from: `./reference/entitlements-direct.plist` to: `desktopApp/src/main/packaging/macos/entitlements/entitlements-direct.plist`
-* Copy file from: `./reference/runtime-entitlements-direct.plist` to: `desktopApp/src/main/packaging/macos/entitlements/runtime-entitlements-direct.plist`
-* Copy file from: `./reference/proguard-rules.pro` to: `desktopApp/proguard-rules.pro`
+* Copy file from: `./resources/entitlements-direct.plist` to: `desktopApp/src/main/packaging/macos/entitlements/entitlements-direct.plist`
+* Copy file from: `./resources/runtime-entitlements-direct.plist` to: `desktopApp/src/main/packaging/macos/entitlements/runtime-entitlements-direct.plist`
+* Copy file from: `./resources/proguard-rules.pro` to: `desktopApp/proguard-rules.pro`
 
 ## Add the distribution-type selector
 
