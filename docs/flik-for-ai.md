@@ -90,6 +90,18 @@ Environment Variables:               # several of a kind → grouped label + lis
 * APPLE_TEAM_ID
 ```
 
+## Comments
+
+An **indented sub-bullet** is a comment — a note for human readers that the
+interpreter ignores. Useful for explaining a prerequisite:
+
+```markdown
+* shell command: `./gradlew`
+  * provided by the flik project — no need to install it
+* jdk 17
+  * required only to build the binary, not to run it
+```
+
 ## Vocabulary (everything the interpreter recognizes)
 
 | Form | Kind | Effect |

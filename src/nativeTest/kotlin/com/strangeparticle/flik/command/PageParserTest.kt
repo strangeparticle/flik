@@ -120,6 +120,16 @@ class PageParserTest {
     }
 
     @Test
+    fun ignoresIndentedCommentSubBulletsInPrerequisites() {
+        val grouped = parsePage("# P\n\nShell Commands:\n* ./gradlew\n  * a human comment\n* xcrun")
+        assertEquals(listOf("./gradlew", "xcrun"), grouped.requiredShellCommands)
+
+        val inline = parsePage("# P\n\n* shell command: `./gradlew`\n  * a comment\n* jdk 17\n  * also a comment")
+        assertEquals(listOf("./gradlew"), inline.requiredShellCommands)
+        assertEquals(0, inline.elements.size)
+    }
+
+    @Test
     fun requiresTitle() {
         assertFailsWith<FlikParseException> { parsePage("no heading here") }
     }

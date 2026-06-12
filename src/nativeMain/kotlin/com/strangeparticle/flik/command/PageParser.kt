@@ -83,13 +83,16 @@ private fun collectBulletsAfterLabel(lines: List<String>, label: String): List<S
     val bullets = mutableListOf<String>()
     var index = startIndex + 1
     while (index < lines.size) {
-        val line = lines[index].trim()
-        if (line.startsWith("* ")) {
-            bullets.add(line.removePrefix("* ").trim().trim('`').trim())
-        } else if (line.isEmpty() && bullets.isEmpty()) {
-            // tolerate blank lines between the label and the first bullet
-        } else {
-            break
+        val raw = lines[index]
+        val trimmed = raw.trim()
+        when {
+            // a top-level (unindented) bullet is a value
+            raw.startsWith("* ") -> bullets.add(trimmed.removePrefix("* ").trim().trim('`').trim())
+            // an indented sub-bullet is a human comment — ignore it, stay in the group
+            trimmed.startsWith("* ") -> Unit
+            // tolerate blank lines before the first value
+            trimmed.isEmpty() && bullets.isEmpty() -> Unit
+            else -> break
         }
         index++
     }

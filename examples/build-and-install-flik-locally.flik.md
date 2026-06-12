@@ -5,6 +5,9 @@ Builds the optimized native `flik` binary and installs it onto your `PATH` at
 
 # Pre-requisites
 * shell command: `./gradlew`
+  * provided by the flik project — no need to install it
+* jdk 17
+  * required only to build the flik binary, not to run it (Gradle 9.1 needs Java 17+)
 
 # Procedure
 
