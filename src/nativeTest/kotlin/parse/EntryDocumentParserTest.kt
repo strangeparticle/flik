@@ -1,9 +1,12 @@
 package parse
 
-import model.ProcedureStep
+import command.BackUpStep
+import command.CalloutStep
+import command.RestoreStep
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
+import kotlin.test.assertIs
 
 private val SAMPLE = """
     # Release Springboard for macOS (Direct Download DMG)
@@ -48,16 +51,17 @@ class EntryDocumentParserTest {
 
     @Test
     fun parsesProcedureStepsInOrder() {
-        val doc = parseEntryDocument(SAMPLE)
-        assertEquals(
-            listOf(
-                ProcedureStep.BackUpToFile("../springboard-release-backup.tar.gz"),
-                ProcedureStep.Callout("Re-apply release-only repo changes"),
-                ProcedureStep.Callout("Build the signed, notarized DMG"),
-                ProcedureStep.RestoreRepository,
-            ),
-            doc.procedure,
-        )
+        val steps = parseEntryDocument(SAMPLE).procedure
+        assertEquals(4, steps.size)
+
+        val backUp = assertIs<BackUpStep>(steps[0])
+        assertEquals("../springboard-release-backup.tar.gz", backUp.path)
+
+        val firstCallout = assertIs<CalloutStep>(steps[1])
+        assertEquals("Re-apply release-only repo changes", firstCallout.name)
+
+        assertIs<CalloutStep>(steps[2])
+        assertIs<RestoreStep>(steps[3])
     }
 
     @Test

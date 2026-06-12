@@ -1,6 +1,5 @@
-package parse
+package command
 
-import model.StageCommand
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
@@ -49,26 +48,26 @@ private val SAMPLE = """
     * **Two** — run `echo beta` and report stuff.
 """.trimIndent()
 
-class SubDocumentParserTest {
-    private val commands = parseSubDocument(SAMPLE).commands
+class StageDocumentParserTest {
+    private val steps = parseStageDocument(SAMPLE).steps
 
     @Test
-    fun parsesAllCommandsInOrder() {
-        assertEquals(5, commands.size)
-        assertIs<StageCommand.CopyFile>(commands[0])
-        assertIs<StageCommand.EditInPlace>(commands[1])
-        assertIs<StageCommand.RunCommand>(commands[2])
-        assertIs<StageCommand.ExpectFileExists>(commands[3])
-        assertIs<StageCommand.ParallelChecks>(commands[4])
+    fun parsesAllStepsInOrder() {
+        assertEquals(5, steps.size)
+        assertIs<CopyFileStep>(steps[0])
+        assertIs<EditInPlaceStep>(steps[1])
+        assertIs<RunCommandStep>(steps[2])
+        assertIs<ExpectFileExistsStep>(steps[3])
+        assertIs<RunChecksStep>(steps[4])
     }
 
     @Test
     fun parsesCopyAndEditFields() {
-        val copy = commands[0] as StageCommand.CopyFile
+        val copy = steps[0] as CopyFileStep
         assertEquals("./reference/a.txt", copy.from)
         assertEquals("dest/a.txt", copy.to)
 
-        val edit = commands[1] as StageCommand.EditInPlace
+        val edit = steps[1] as EditInPlaceStep
         assertEquals("config.kts", edit.file)
         assertEquals("old()", edit.find)
         assertEquals("new()", edit.replace)
@@ -76,13 +75,13 @@ class SubDocumentParserTest {
 
     @Test
     fun parsesRunAndExpect() {
-        assertEquals("echo hi", (commands[2] as StageCommand.RunCommand).command)
-        assertEquals("{{ project_root }}/out.txt", (commands[3] as StageCommand.ExpectFileExists).path)
+        assertEquals("echo hi", (steps[2] as RunCommandStep).command)
+        assertEquals("{{ project_root }}/out.txt", (steps[3] as ExpectFileExistsStep).path)
     }
 
     @Test
     fun parsesParallelChecksWithOptionalContains() {
-        val checks = (commands[4] as StageCommand.ParallelChecks).checks
+        val checks = (steps[4] as RunChecksStep).checks
         assertEquals(2, checks.size)
         assertEquals("echo alpha", checks[0].command)
         assertEquals("alpha", checks[0].expectContains)

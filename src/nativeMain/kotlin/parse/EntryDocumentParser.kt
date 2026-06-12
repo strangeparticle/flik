@@ -1,13 +1,12 @@
 package parse
 
+import command.ProcedureStep
+import command.procedureStepParsers
 import model.EntryDocument
-import model.ProcedureStep
 
 private const val PROCEDURE_LABEL = "Run these steps sequentially, in the order shown:"
 private const val ENV_LABEL = "Environment Variables:"
 private const val COMMANDS_LABEL = "Shell Commands:"
-private const val BACKUP_PREFIX = "back up to file"
-private val CALLOUT_REGEX = Regex("^\\[(.+)]$")
 
 /** Parses the source of a top-level entry `.flik.md` document into an [EntryDocument]. */
 fun parseEntryDocument(source: String): EntryDocument {
@@ -32,6 +31,11 @@ fun parseEntryDocument(source: String): EntryDocument {
     )
 }
 
+/** Resolves one procedure bullet by trying each registered procedure-step parser. */
+private fun parseProcedureStep(bullet: String): ProcedureStep =
+    procedureStepParsers.firstNotNullOfOrNull { it.tryParse(bullet) }
+        ?: throw FlikParseException("Unrecognized procedure step: \"$bullet\"")
+
 /**
  * Collects consecutive `* item` bullets that follow a `label` line. Blank lines
  * before the first bullet are skipped; the first blank or non-bullet line after the
@@ -55,20 +59,4 @@ private fun collectBulletsAfterLabel(lines: List<String>, label: String): List<S
         index++
     }
     return bullets
-}
-
-private fun parseProcedureStep(text: String): ProcedureStep {
-    if (text.equals("restore the repository", ignoreCase = true)) {
-        return ProcedureStep.RestoreRepository
-    }
-    if (text.startsWith(BACKUP_PREFIX, ignoreCase = true)) {
-        val path = text.substring(BACKUP_PREFIX.length).trim().trim('`').trim()
-        if (path.isEmpty()) throw FlikParseException("'$BACKUP_PREFIX' step has no path")
-        return ProcedureStep.BackUpToFile(path)
-    }
-    val callout = CALLOUT_REGEX.matchEntire(text)
-    if (callout != null) {
-        return ProcedureStep.Callout(callout.groupValues[1].trim())
-    }
-    throw FlikParseException("Unrecognized procedure step: \"$text\"")
 }

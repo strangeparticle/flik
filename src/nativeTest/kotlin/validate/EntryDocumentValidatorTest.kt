@@ -1,7 +1,10 @@
 package validate
 
+import command.BackUpStep
+import command.CalloutStep
+import command.ProcedureStep
+import command.RestoreStep
 import model.EntryDocument
-import model.ProcedureStep
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -21,7 +24,7 @@ class EntryDocumentValidatorTest {
     @Test
     fun flagsMissingCalloutFile() {
         val problems = findEntryDocumentProblems(
-            entryDocument(listOf(ProcedureStep.Callout("Build the signed, notarized DMG"))),
+            entryDocument(listOf(CalloutStep("Build the signed, notarized DMG"))),
             calloutFileExists = { false },
         )
         assertEquals(1, problems.size)
@@ -33,9 +36,9 @@ class EntryDocumentValidatorTest {
         val problems = findEntryDocumentProblems(
             entryDocument(
                 listOf(
-                    ProcedureStep.BackUpToFile("backup.tar.gz"),
-                    ProcedureStep.Callout("Anything"),
-                    ProcedureStep.RestoreRepository,
+                    BackUpStep("backup.tar.gz"),
+                    CalloutStep("Anything"),
+                    RestoreStep(),
                 ),
             ),
             calloutFileExists = { true },

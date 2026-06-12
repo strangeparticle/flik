@@ -1,7 +1,7 @@
 package validate
 
+import command.CalloutStep
 import model.EntryDocument
-import model.ProcedureStep
 import parse.calloutFileName
 
 /**
@@ -20,7 +20,7 @@ fun findEntryDocumentProblems(
     }
 
     for (step in document.procedure) {
-        if (step is ProcedureStep.Callout) {
+        if (step is CalloutStep) {
             val fileName = calloutFileName(step.name)
             if (!calloutFileExists(fileName)) {
                 problems.add("callout \"${step.name}\" resolves to $fileName, which was not found")

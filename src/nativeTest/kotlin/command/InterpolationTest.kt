@@ -1,4 +1,4 @@
-package run
+package command
 
 import kotlin.test.Test
 import kotlin.test.assertEquals

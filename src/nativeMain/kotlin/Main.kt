@@ -5,6 +5,8 @@ import com.github.ajalt.clikt.core.subcommands
 import com.github.ajalt.clikt.parameters.arguments.argument
 import com.github.ajalt.clikt.parameters.options.default
 import com.github.ajalt.clikt.parameters.options.option
+import command.ExecutionContext
+import command.FlikExecutionException
 import os.fileExists
 import os.joinPath
 import os.parentDirectoryOf
@@ -12,8 +14,6 @@ import os.readFileText
 import os.runShellCommand
 import parse.FlikParseException
 import parse.parseEntryDocument
-import run.ExecutionContext
-import run.FlikExecutionException
 import run.Interpreter
 import validate.findEntryDocumentProblems
 
@@ -90,8 +90,8 @@ class Run : CliktCommand(name = "run") {
         }
 
         val absoluteProjectRoot = runShellCommand("pwd", projectRoot).output.trim()
-        val context = ExecutionContext(absoluteProjectRoot)
-        val interpreter = Interpreter(context, parentDirectoryOf(file)) { line -> echo(line) }
+        val context = ExecutionContext(absoluteProjectRoot, parentDirectoryOf(file)) { line -> echo(line) }
+        val interpreter = Interpreter(context)
 
         echo("Running: ${document.title}")
         echo("Project root: $absoluteProjectRoot")

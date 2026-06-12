@@ -1,4 +1,4 @@
-package run
+package command
 
 private val PROJECT_ROOT_REGEX = Regex("\\{\\{\\s*project_root\\s*}}")
 
