@@ -13,11 +13,12 @@ a new one.
 ## Index
 
 - [`release-macos-dmg/`](./release-macos-dmg/) — release a macOS app as a signed,
-  notarized direct-download `.dmg`. Demonstrates: inline prerequisites, a sequential
-  procedure with `back up to file` / `restore the repository`, bare bracketed
-  callouts (resolved by name normalization), `Copy file from: … to: …`,
-  `In file:` / `Find this section:` / `Replace it with:` edits, `Run command:`,
-  `Expect file to exist:`, `Run these checks in parallel:`, and `{{ project_root }}`.
+  notarized direct-download `.dmg`. A root page that declares per-page prerequisites,
+  backs up, invokes sub-pages (`back up to file` / `restore the repository`), and
+  restores. Demonstrates: bare bracketed page invocations (resolved by name
+  normalization), `Copy file from: … to: …`, `In file:` / `Find this section:` /
+  `Replace it with:` edits, `Run command:`, `Expect file to exist:`,
+  `Run these checks in parallel:`, and `{{ project_root }}`.
 
 ## Validate an example
 
