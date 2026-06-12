@@ -1,6 +1,6 @@
 # Re-Apply Release-Only Repo Changes
 
-flik version: 0.1
+* flik version: `0.1`
 
 The public `springboard` repo intentionally ships **unsigned** packaging: it has no
 signing identities, no notarization wiring, no entitlements files, and no release

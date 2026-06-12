@@ -1,6 +1,6 @@
 # Build the Signed, Notarized DMG
 
-flik version: 0.1
+* flik version: `0.1`
 
 With the release-only changes re-applied, build the direct-distribution `.dmg`. The
 `notarizeReleaseDmg` task signs the `.app` bundle, submits it to Apple for
@@ -35,4 +35,4 @@ teamID"). Wait for completion.
 
 ## Verify the DMG was produced
 
-Expect file to exist: `{{ project_root }}/desktopApp/build/compose/binaries/main-release/dmg/Springboard-4.10.0.dmg`
+Expect file to exist: `${{ project_root }}/desktopApp/build/compose/binaries/main-release/dmg/Springboard-4.10.0.dmg`

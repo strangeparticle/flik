@@ -18,7 +18,7 @@ a new one.
   restores. Demonstrates: bare bracketed page invocations (resolved by name
   normalization), `Copy file from: … to: …`, `In file:` / `Find this section:` /
   `Replace it with:` edits, `Run command:`, `Expect file to exist:`,
-  `Run these checks in parallel:`, and `{{ project_root }}`.
+  `Run these checks in parallel:`, and `${{ project_root }}`.
 - [`build-and-install-flik-locally.flik.md`](./build-and-install-flik-locally.flik.md)
   — build the release `flik` binary and install it onto `PATH` (Flik installing
   Flik). A single self-contained page: per-page prerequisites, `Run command:`,

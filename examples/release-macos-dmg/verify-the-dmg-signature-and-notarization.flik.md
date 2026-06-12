@@ -1,6 +1,6 @@
 # Verify the DMG Signature and Notarization
 
-flik version: 0.1
+* flik version: `0.1`
 
 Confirm the built artifact is correctly signed by the expected Developer ID,
 accepted by Gatekeeper as notarized, and built for the expected architectures. An
@@ -12,7 +12,7 @@ failure, not a pass.
 Run command:
 
 ```shell
-hdiutil attach "{{ project_root }}/desktopApp/build/compose/binaries/main-release/dmg/Springboard-4.10.0.dmg"
+hdiutil attach "${{ project_root }}/desktopApp/build/compose/binaries/main-release/dmg/Springboard-4.10.0.dmg"
 ```
 
 ## Run the verification checks

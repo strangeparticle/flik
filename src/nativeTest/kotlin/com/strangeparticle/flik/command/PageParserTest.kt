@@ -15,13 +15,13 @@ private val SAMPLE = """
     # Sample Page
 
     # Pre-requisites
-    flik version: 0.1
+    * flik version: `0.1`
+    * shell command: `tar`
 
     Environment Variables:
     * TOKEN
 
     Shell Commands:
-    * tar
     * cp
 
     # Body
@@ -49,7 +49,7 @@ private val SAMPLE = """
     echo hi
     ```
 
-    Expect file to exist: `{{ project_root }}/out.txt`
+    Expect file to exist: `${'$'}{{ project_root }}/out.txt`
 
     * restore the repository
 """.trimIndent()
@@ -58,11 +58,12 @@ class PageParserTest {
     private val page = parsePage(SAMPLE)
 
     @Test
-    fun parsesTitleVersionAndPerPagePrerequisites() {
+    fun parsesPrerequisitesInBothInlineAndGroupedForms() {
         assertEquals("Sample Page", page.title)
-        assertEquals("0.1", page.flikVersion)
+        assertEquals("0.1", page.flikVersion)               // inline `* flik version: ...`
         assertEquals(listOf("TOKEN"), page.requiredEnvironmentVariables)
-        assertEquals(listOf("tar", "cp"), page.requiredShellCommands)
+        // grouped (Shell Commands: cp) plus inline (* shell command: tar)
+        assertEquals(listOf("cp", "tar"), page.requiredShellCommands)
     }
 
     @Test
@@ -77,6 +78,12 @@ class PageParserTest {
     }
 
     @Test
+    fun preservesInterpolationTokensVerbatim() {
+        val expect = page.elements[4] as ExpectFileCommand
+        assertEquals("${'$'}{{ project_root }}/out.txt", expect.path)
+    }
+
+    @Test
     fun mixesCommandsAndPageInvocationsWithoutASequentialDirective() {
         val backUp = page.elements[0] as BackUpCommand
         assertEquals("backup.tar.gz", backUp.fileName)
@@ -88,7 +95,7 @@ class PageParserTest {
 
     @Test
     fun parsesNamedRestoreForm() {
-        val page = parsePage("# P\nflik version: 0.1\n\n* restore from backup `older.tar.gz`")
+        val page = parsePage("# P\n* flik version: `0.1`\n\n* restore from backup `older.tar.gz`")
         val restore = assertIs<RestoreCommand>(page.elements.single())
         assertEquals("older.tar.gz", restore.backupName)
     }

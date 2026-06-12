@@ -1,7 +1,7 @@
 # Release Springboard for macOS (Direct Download DMG)
 
 # Pre-requisites
-flik version: 0.1
+* flik version: `0.1`
 
 Environment Variables:
 * APPLE_ID

@@ -9,13 +9,19 @@ class InterpolationTest {
     fun substitutesProjectRootWithSpaces() {
         assertEquals(
             "/proj/desktopApp/x.dmg",
-            interpolate("{{ project_root }}/desktopApp/x.dmg", "/proj"),
+            interpolate("${'$'}{{ project_root }}/desktopApp/x.dmg", "/proj"),
         )
     }
 
     @Test
     fun substitutesWithoutInnerSpaces() {
-        assertEquals("/proj/a", interpolate("{{project_root}}/a", "/proj"))
+        assertEquals("/proj/a", interpolate("${'$'}{{project_root}}/a", "/proj"))
+    }
+
+    @Test
+    fun leavesShellStyleDollarBracesUntouched() {
+        // A plain ${...} (no double brace) is NOT Flik interpolation — it passes through.
+        assertEquals("\${HOME}/a", interpolate("\${HOME}/a", "/proj"))
     }
 
     @Test

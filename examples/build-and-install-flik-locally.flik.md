@@ -8,10 +8,8 @@ flik run examples/build-and-install-flik-locally.flik.md --project-root .
 ```
 
 # Pre-requisites
-flik version: 0.1
-
-Shell Commands:
-* ./gradlew
+* flik version: `0.1`
+* shell command: `./gradlew`
 
 # Procedure
 
@@ -28,7 +26,7 @@ DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer ./gradlew :linkReleaseE
 
 ## Verify the binary was produced
 
-Expect file to exist: `{{ project_root }}/build/bin/macosArm64/releaseExecutable/flik.kexe`
+Expect file to exist: `${{ project_root }}/build/bin/macosArm64/releaseExecutable/flik.kexe`
 
 ## Install onto PATH
 

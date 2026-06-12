@@ -18,8 +18,7 @@ you point `flik run` at (the "root") is just where execution starts; structurall
 it's identical to every page it calls. A page has:
 
 - a `# Title`,
-- a `flik version:` line,
-- optional **prerequisites** (declared at the top of *any* page), and
+- **prerequisites** at the top (declared on *any* page), each a `* <kind>: \`value\`` bullet, and
 - a **body**: a sequence of elements executed in **document order**.
 
 A body element is one of exactly two things: a **Command** (a built-in) or a **Page
@@ -31,13 +30,9 @@ invocation** (a callout to another page).
 # Build the artifact
 
 # Pre-requisites
-flik version: 0.1
-
-Environment Variables:
-* APPLE_ID
-
-Shell Commands:
-* ./gradlew
+* flik version: `0.1`
+* environment variable: `APPLE_ID`
+* shell command: `./gradlew`
 
 # Body
 
@@ -64,7 +59,7 @@ Run command:
 ./gradlew :app:packageReleaseDmg
 ```
 
-Expect file to exist: `{{ project_root }}/app/build/release/TheThing.dmg`
+Expect file to exist: `${{ project_root }}/app/build/release/TheThing.dmg`
 
 * restore the repository
 `````
@@ -72,13 +67,28 @@ Expect file to exist: `{{ project_root }}/app/build/release/TheThing.dmg`
 Elements run top to bottom in the order they appear. **You do not write a "run these
 in order" directive** — document order *is* the order.
 
+## Prerequisites
+
+Each prerequisite is a `* <kind>: \`value\`` bullet. When there are **several** of one
+kind, you may instead group them under a plural label + bullet list. Both parse.
+
+```markdown
+# Pre-requisites
+* flik version: `0.1`
+* shell command: `./gradlew`        # one of a kind → inline
+
+Environment Variables:               # several of a kind → grouped label + list
+* APPLE_ID
+* APPLE_TEAM_ID
+```
+
 ## Vocabulary (everything the interpreter recognizes)
 
 | Form | Kind | Effect |
 |------|------|--------|
-| `flik version: <x>` | header | the Flik version the page targets |
-| `Environment Variables:` then `* NAME` bullets | prerequisite | required env vars — checked when the page is entered |
-| `Shell Commands:` then `* cmd` bullets | prerequisite | required commands on PATH — checked on entry |
+| ``* flik version: `<x>` `` | prerequisite | the Flik version the page targets |
+| ``* environment variable: `NAME` `` (or `Environment Variables:` + `* NAME` bullets) | prerequisite | required env vars — checked when the page is entered |
+| ``* shell command: `cmd` `` (or `Shell Commands:` + `* cmd` bullets) | prerequisite | required commands on PATH — checked on entry |
 | `[Page Name]` | page invocation | run the page whose filename is derived from the name |
 | ``Copy file from: `src` to: `dst` `` | command | copy (`src` relative to *this* page, `dst` to the project root) |
 | `Run command:` + a fenced ```` ```shell ```` block | command | run a shell command; non-zero exit fails the run |
@@ -88,10 +98,10 @@ in order" directive** — document order *is* the order.
 | `back up to file <name>` | command | back up the project to `executions/<run>/backups/<name>` |
 | `restore the repository` | command | restore the most recent backup *this page* took |
 | `restore from backup <name>` | command | restore a specific named backup |
-| `{{ project_root }}` | interpolation | the root path of the project Flik operates on |
+| `${{ project_root }}` | interpolation | the root path of the project Flik operates on |
 
-One-line forms (`Copy file…`, `Expect…`, `back up…`, `restore…`, `[Page]`) may be
-written as bare lines or as `*` bullets — both work.
+One-line forms (`Copy file…`, `Expect…`, `back up…`, `restore…`, `[Page]`, and the
+prerequisite bullets) may be written as bare lines or as `*` bullets — both work.
 
 ## The five rules you must follow
 
@@ -103,8 +113,11 @@ written as bare lines or as `*` bullets — both work.
    error handling — there is no need.
 4. **Hardcode values; do not DRY.** There is no variable-declaration syntax. Write
    literal values (e.g. `TheThing`, `1.4.2`) directly, repeated as needed. The only
-   interpolation is `{{ project_root }}`.
-5. **`flik version:` sits in the prerequisites at the top of the page.**
+   interpolation is `${{ project_root }}` — note the **double brace** (GitHub Actions
+   style), which keeps it from colliding with the plain shell/Kotlin `$VAR` and
+   `${VAR}` that live in your `Run command:` and edit blocks (those pass through
+   untouched).
+5. **`* flik version: \`<x>\`` is the first prerequisite bullet.**
 
 ## Bullets: when to use them
 
@@ -143,7 +156,7 @@ So you don't generate forms that won't run yet:
 
 - **Implemented:** everything in the Vocabulary table above; pages that invoke pages
   recursively; per-page prerequisites; document-order execution; backup/restore;
-  `{{ project_root }}`.
+  `${{ project_root }}`.
 - **Planned (do not rely on yet):** parallel execution (`Run these checks in parallel:`
   is accepted but currently runs sequentially; parallel *page* invocation isn't in
   yet); loops and conditionals over invocations; loose-whitespace matching for `Find
