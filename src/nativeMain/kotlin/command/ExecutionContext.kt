@@ -2,9 +2,6 @@ package command
 
 import os.joinPath
 
-/** A backup taken during the run: which page created it, its filename, and full path. */
-data class BackupRecord(val pageId: String, val fileName: String, val filePath: String)
-
 /** A page currently on the execution stack. */
 private data class PageFrame(val pageId: String, val pageDirectory: String)
 

@@ -2,9 +2,6 @@ package command
 
 import os.runShellCommand
 
-/** One verification check: a command and an optional substring its output must contain. */
-data class Check(val description: String, val command: String, val expectContains: String?)
-
 /**
  * `Run these checks in parallel:` + a bullet list of checks. (Checks currently run
  * sequentially; the surface is designed for parallel execution, which is coming.)
