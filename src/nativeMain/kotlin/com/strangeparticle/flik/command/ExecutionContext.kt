@@ -14,6 +14,8 @@ private data class PageFrame(val pageId: String, val pageDirectory: String)
 class ExecutionContext(
     val projectRoot: String,
     val backupsDirectory: String,
+    /** Every page in the compiled program, keyed by file path — used to run callouts. */
+    val pages: Map<String, Page>,
     val log: (String) -> Unit,
 ) {
     private val frames = ArrayDeque<PageFrame>()
