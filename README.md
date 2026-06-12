@@ -50,10 +50,14 @@ DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer ./gradlew :macosArm64Te
 
 ## Project layout
 
-- `src/nativeMain/kotlin/Main.kt` — CLI entry (Clikt: `version` / `validate` / `run`)
-- `src/nativeMain/kotlin/command/` — the page model: pages, commands, page invocations, the page parser/runner, and execution context
-- `src/nativeMain/kotlin/parse/` — callout-name normalization and parse errors
-- `src/nativeMain/kotlin/run/` — the run driver (sets up the execution directory, runs the root page)
-- `src/nativeMain/kotlin/os/` — POSIX filesystem and process helpers
-- `src/nativeMain/kotlin/validate/` — page validation
-- `examples/` — Flik example documents
+Source is under `com.strangeparticle.flik`
+(`src/nativeMain/kotlin/com/strangeparticle/flik/`):
+
+- `Flik.kt` — CLI entry (Clikt: `version` / `validate` / `run`)
+- `command/` — the page model: pages, commands, page invocations, the page parser/runner, and execution context
+- `parse/` — callout-name normalization and parse errors
+- `run/` — the run driver (sets up the execution directory, runs the root page)
+- `os/` — POSIX filesystem and process helpers
+- `validate/` — page validation
+
+`examples/` holds the Flik example documents.

@@ -16,7 +16,7 @@ kotlin {
     nativeTargets.forEach { target ->
         target.binaries {
             executable {
-                entryPoint = "main"
+                entryPoint = "com.strangeparticle.flik.main"
                 baseName = "flik"
             }
         }
