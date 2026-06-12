@@ -22,17 +22,23 @@ Compiled binaries land under `build/bin/<target>/<debug|release>Executable/flik.
 
 ```sh
 flik version
-flik validate <entry.flik.md>
-flik run <entry.flik.md> [--project-root <dir>]
+flik validate <root.flik.md>
+flik explain  <root.flik.md>
+flik run <root.flik.md> [--project-root <dir>]
 ```
 
-- **validate** — parses an entry document, resolves its bracketed callouts to
-  sibling `.flik.md` files via name normalization, and reports structure without
-  executing anything.
-- **run** — checks prerequisites (required env vars and commands), then executes the
-  procedure in order: `back up to file`, callouts (which copy files, edit files in
-  place, run commands, and verify outputs), and `restore the repository`. Stops on
-  the first failure.
+- **validate** — *links* the whole page graph from the root: parses every reachable
+  page, resolves every callout (by name normalization), and reports **all** structural
+  problems at once (missing pages, parse errors, cycles, missing version footers),
+  each tagged with its page. No execution; needs no `--project-root`, so it runs
+  anywhere (e.g. CI).
+- **explain** — links, then prints the page graph and the aggregated prerequisites
+  without executing.
+- **run** — links, then **preflights** (checks every prerequisite across every page up
+  front, reporting all the missing ones together), then executes the compiled program
+  in order: `back up to file`, callouts (which copy files, edit in place, run commands,
+  and verify outputs), and `restore the repository`. Stops on the first execution
+  failure.
 
 A worked example lives in `examples/release-macos-dmg/` (a macOS signed/notarized
 direct-download `.dmg` release).
@@ -53,11 +59,11 @@ DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer ./gradlew :macosArm64Te
 Source is under `com.strangeparticle.flik`
 (`src/nativeMain/kotlin/com/strangeparticle/flik/`):
 
-- `Flik.kt` — CLI entry (Clikt: `version` / `validate` / `run`)
+- `Flik.kt` — CLI entry (Clikt: `version` / `validate` / `explain` / `run`)
 - `command/` — the page model: pages, commands, page invocations, the page parser/runner, and execution context
+- `program/` — whole-program linker (`compile`) and aggregate `preflight`
 - `parse/` — callout-name normalization and parse errors
-- `run/` — the run driver (sets up the execution directory, runs the root page)
+- `run/` — the run driver (sets up the execution directory, runs the linked program)
 - `os/` — POSIX filesystem and process helpers
-- `validate/` — page validation
 
 `examples/` holds the Flik example documents.

@@ -163,15 +163,20 @@ append `.flik.md`.
 ## The generate → validate → fix loop
 
 This is the main reason Flik is easier to generate than a shell script: **check
-before you run.**
+before you run.** `validate` links the *whole* page graph — every reachable page is
+parsed and every callout resolved — and reports **all** structural problems at once
+(missing pages, parse errors, cycles, missing version footers), each tagged with its
+page.
 
 ```sh
-flik validate path/to/page.flik.md   # parses, resolves invocations, no execution
-flik run      path/to/page.flik.md --project-root <dir>
+flik validate path/to/root.flik.md            # deep-link the whole graph; no execution
+flik explain  path/to/root.flik.md            # print the page graph + aggregated prereqs
+flik run      path/to/root.flik.md --project-root <dir>
 ```
 
-Generate a page, run `flik validate`, read the diagnostic, fix, repeat. Only then
-`flik run`.
+`run` additionally **preflights**: it checks every prerequisite across every page up
+front and reports all the missing ones together, before doing any work. Generate,
+`validate`, read the diagnostics, fix, repeat; then `run`.
 
 ## Implemented now vs. planned
 
