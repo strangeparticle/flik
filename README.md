@@ -51,8 +51,9 @@ DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer ./gradlew :macosArm64Te
 ## Project layout
 
 - `src/nativeMain/kotlin/Main.kt` — CLI entry (Clikt: `version` / `validate` / `run`)
-- `src/nativeMain/kotlin/parse/` — document parsers and callout-name normalization
-- `src/nativeMain/kotlin/model/` — document AST (entry document, procedure steps, stage commands)
-- `src/nativeMain/kotlin/run/` — execution engine and interpolation
+- `src/nativeMain/kotlin/command/` — the page model: pages, commands, page invocations, the page parser/runner, and execution context
+- `src/nativeMain/kotlin/parse/` — callout-name normalization and parse errors
+- `src/nativeMain/kotlin/run/` — the run driver (sets up the execution directory, runs the root page)
 - `src/nativeMain/kotlin/os/` — POSIX filesystem and process helpers
+- `src/nativeMain/kotlin/validate/` — page validation
 - `examples/` — Flik example documents
