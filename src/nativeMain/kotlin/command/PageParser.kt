@@ -1,40 +1,46 @@
-package parse
+package command
 
-import command.ProcedureStep
-import command.procedureStepParsers
-import model.EntryDocument
+import parse.FlikParseException
 
-private const val PROCEDURE_LABEL = "Run these steps sequentially, in the order shown:"
 private const val ENV_LABEL = "Environment Variables:"
 private const val COMMANDS_LABEL = "Shell Commands:"
 
-/** Parses the source of a top-level entry `.flik.md` document into an [EntryDocument]. */
-fun parseEntryDocument(source: String): EntryDocument {
+/**
+ * Parses a Flik page. Prerequisites are read from the labelled bullet lists; the body
+ * is every recognized element in document order (each line is offered to the
+ * registered parsers). Unrecognized lines — headings, prose, blockquotes, blank
+ * lines, and the prerequisite bullets themselves — are skipped.
+ */
+fun parsePage(source: String): Page {
     val lines = source.lines()
 
     val title = lines.firstOrNull { it.startsWith("# ") }
         ?.removePrefix("# ")?.trim()
-        ?: throw FlikParseException("Document has no '# Title' heading")
-
+        ?: throw FlikParseException("page has no '# Title' heading")
     val flikVersion = lines
         .firstOrNull { it.trim().startsWith("flik version:", ignoreCase = true) }
         ?.substringAfter(":")?.trim()
 
-    val procedure = collectBulletsAfterLabel(lines, PROCEDURE_LABEL).map { parseProcedureStep(it) }
+    val elements = mutableListOf<PageElement>()
+    var index = 0
+    while (index < lines.size) {
+        val parsed = pageElementParsers.firstNotNullOfOrNull { it.tryParse(lines, index) }
+        if (parsed != null) {
+            elements.add(parsed.element)
+            index = parsed.nextIndex
+        } else {
+            index++
+        }
+    }
 
-    return EntryDocument(
+    return Page(
         title = title,
         flikVersion = flikVersion,
         requiredEnvironmentVariables = collectBulletsAfterLabel(lines, ENV_LABEL),
         requiredShellCommands = collectBulletsAfterLabel(lines, COMMANDS_LABEL),
-        procedure = procedure,
+        elements = elements,
     )
 }
-
-/** Resolves one procedure bullet by trying each registered procedure-step parser. */
-private fun parseProcedureStep(bullet: String): ProcedureStep =
-    procedureStepParsers.firstNotNullOfOrNull { it.tryParse(bullet) }
-        ?: throw FlikParseException("Unrecognized procedure step: \"$bullet\"")
 
 /**
  * Collects consecutive `* item` bullets that follow a `label` line. Blank lines

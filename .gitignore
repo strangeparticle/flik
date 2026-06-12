@@ -16,3 +16,6 @@ local.properties
 
 # macOS
 .DS_Store
+
+# Flik execution artifacts (per-run executions/<timestamp>/ dirs)
+**/executions/

@@ -7,9 +7,9 @@ data class Check(val description: String, val command: String, val expectContain
 
 /**
  * `Run these checks in parallel:` + a bullet list of checks. (Checks currently run
- * sequentially; the surface is designed for parallel execution.)
+ * sequentially; the surface is designed for parallel execution, which is coming.)
  */
-class RunChecksStep(val checks: List<Check>) : StageStep {
+class RunChecksCommand(val checks: List<Check>) : Command {
     override fun execute(context: ExecutionContext) {
         context.log("  ${checks.size} checks:")
         for (check in checks) {
@@ -28,10 +28,10 @@ class RunChecksStep(val checks: List<Check>) : StageStep {
         }
     }
 
-    companion object : StageStepParser {
+    companion object : PageElementParser {
         private val COMMAND_REGEX = Regex("run `([^`]+)`")
         private val CONTAINS_REGEX = Regex("contain `([^`]+)`")
-        override fun tryParse(lines: List<String>, index: Int): ParsedStageStep? {
+        override fun tryParse(lines: List<String>, index: Int): ParsedElement? {
             if (lines[index].trim() != "Run these checks in parallel:") return null
             val checks = mutableListOf<Check>()
             var j = index + 1
@@ -50,7 +50,7 @@ class RunChecksStep(val checks: List<Check>) : StageStep {
                     break
                 }
             }
-            return ParsedStageStep(RunChecksStep(checks), j)
+            return ParsedElement(RunChecksCommand(checks), j)
         }
     }
 }

@@ -2,6 +2,9 @@ package command
 
 import parse.FlikParseException
 
+/** A line's content with surrounding whitespace and an optional leading `* ` bullet removed. */
+fun bulletOrLine(line: String): String = line.trim().removePrefix("* ").trim()
+
 /** Returns the index >= [from] of the first line whose trimmed text equals [target], or -1. */
 fun indexOfTrimmed(lines: List<String>, from: Int, target: String): Int {
     for (j in from until lines.size) {

@@ -5,17 +5,16 @@ import com.github.ajalt.clikt.core.subcommands
 import com.github.ajalt.clikt.parameters.arguments.argument
 import com.github.ajalt.clikt.parameters.options.default
 import com.github.ajalt.clikt.parameters.options.option
-import command.ExecutionContext
 import command.FlikExecutionException
+import command.parsePage
 import os.fileExists
 import os.joinPath
 import os.parentDirectoryOf
 import os.readFileText
 import os.runShellCommand
 import parse.FlikParseException
-import parse.parseEntryDocument
 import run.Interpreter
-import validate.findEntryDocumentProblems
+import validate.findPageProblems
 
 const val FLIK_VERSION = "0.1.0"
 
@@ -30,34 +29,25 @@ class Version : CliktCommand(name = "version") {
 }
 
 class Validate : CliktCommand(name = "validate") {
-    private val file: String by argument(name = "file", help = "Path to the entry .flik.md document")
+    private val file: String by argument(name = "file", help = "Path to the .flik.md page")
 
     override fun run() {
-        val source = try {
-            readFileText(file)
-        } catch (failure: Exception) {
-            echo("cannot read $file: ${failure.message}", err = true)
-            throw ProgramResult(1)
-        }
-
-        val document = try {
-            parseEntryDocument(source)
+        val page = try {
+            parsePage(readFileTextOrExit(file))
         } catch (failure: FlikParseException) {
             echo("parse error in $file: ${failure.message}", err = true)
             throw ProgramResult(1)
         }
 
         val directory = parentDirectoryOf(file)
-        val problems = findEntryDocumentProblems(document) { fileName ->
-            fileExists(joinPath(directory, fileName))
-        }
+        val problems = findPageProblems(page) { fileName -> fileExists(joinPath(directory, fileName)) }
 
         if (problems.isEmpty()) {
-            echo("OK: ${document.title}")
+            echo("OK: ${page.title}")
             echo(
-                "  ${document.procedure.size} steps, " +
-                    "${document.requiredEnvironmentVariables.size} required env vars, " +
-                    "${document.requiredShellCommands.size} required commands",
+                "  ${page.elements.size} elements, " +
+                    "${page.requiredEnvironmentVariables.size} required env vars, " +
+                    "${page.requiredShellCommands.size} required commands",
             )
         } else {
             echo("problems in $file:", err = true)
@@ -68,35 +58,27 @@ class Validate : CliktCommand(name = "validate") {
 }
 
 class Run : CliktCommand(name = "run") {
-    private val file: String by argument(name = "file", help = "Path to the entry .flik.md document")
+    private val file: String by argument(name = "file", help = "Path to the root .flik.md page")
     private val projectRoot: String by option(
         "--project-root",
         help = "Root of the project Flik operates on (default: current directory)",
     ).default(".")
 
     override fun run() {
-        val source = try {
-            readFileText(file)
-        } catch (failure: Exception) {
-            echo("cannot read $file: ${failure.message}", err = true)
-            throw ProgramResult(1)
-        }
-
-        val document = try {
-            parseEntryDocument(source)
+        val page = try {
+            parsePage(readFileTextOrExit(file))
         } catch (failure: FlikParseException) {
             echo("parse error in $file: ${failure.message}", err = true)
             throw ProgramResult(1)
         }
 
         val absoluteProjectRoot = runShellCommand("pwd", projectRoot).output.trim()
-        val context = ExecutionContext(absoluteProjectRoot, parentDirectoryOf(file)) { line -> echo(line) }
-        val interpreter = Interpreter(context)
-
-        echo("Running: ${document.title}")
+        echo("Running: ${page.title}")
         echo("Project root: $absoluteProjectRoot")
+
+        val interpreter = Interpreter(absoluteProjectRoot, file) { line -> echo(line) }
         try {
-            interpreter.execute(document)
+            interpreter.execute(page)
         } catch (failure: FlikExecutionException) {
             echo("", err = true)
             echo("FAILED: ${failure.message}", err = true)
@@ -105,6 +87,14 @@ class Run : CliktCommand(name = "run") {
         echo("Done.")
     }
 }
+
+private fun CliktCommand.readFileTextOrExit(file: String): String =
+    try {
+        readFileText(file)
+    } catch (failure: Exception) {
+        echo("cannot read $file: ${failure.message}", err = true)
+        throw ProgramResult(1)
+    }
 
 fun main(args: Array<String>) =
     Flik().subcommands(Version(), Validate(), Run()).main(args)

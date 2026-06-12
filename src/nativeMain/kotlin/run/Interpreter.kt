@@ -1,39 +1,32 @@
 package run
 
 import command.ExecutionContext
-import command.FlikExecutionException
-import model.EntryDocument
-import os.commandIsAvailable
-import os.environmentVariable
+import command.Page
+import command.runPage
+import os.joinPath
+import os.parentDirectoryOf
+import os.runShellCommand
+import os.singleQuote
 
 /**
- * Drives a `flik run`: checks prerequisites, then executes each procedure step in
- * order. The per-command behavior lives in the `command` package; this is a thin
- * driver. Fail-on-error: any thrown [FlikExecutionException] aborts the run.
+ * Drives a `flik run`: creates a timestamped execution directory beside the root page
+ * (`executions/<timestamp>/backups/`), builds the execution context, and runs the
+ * root page. The root page is run with the same machinery as any invoked page.
  */
-class Interpreter(private val context: ExecutionContext) {
-    fun execute(document: EntryDocument) {
-        checkPrerequisites(document)
-        for (step in document.procedure) {
-            step.execute(context)
-        }
-    }
+class Interpreter(
+    private val projectRoot: String,
+    private val rootPagePath: String,
+    private val log: (String) -> Unit,
+) {
+    fun execute(page: Page) {
+        val rootPageDirectory = parentDirectoryOf(rootPagePath)
+        val timestamp = runShellCommand("date -u +%Y-%m-%dT%H-%M-%SZ").output.trim()
+        val executionDirectory = joinPath(joinPath(rootPageDirectory, "executions"), timestamp)
+        val backupsDirectory = joinPath(executionDirectory, "backups")
+        runShellCommand("mkdir -p ${singleQuote(backupsDirectory)}")
+        log("Execution dir: $executionDirectory")
 
-    private fun checkPrerequisites(document: EntryDocument) {
-        for (name in document.requiredEnvironmentVariables) {
-            if (environmentVariable(name).isNullOrEmpty()) {
-                throw FlikExecutionException("required environment variable not set: $name")
-            }
-        }
-        for (commandName in document.requiredShellCommands) {
-            if (!commandIsAvailable(commandName, context.projectRoot)) {
-                throw FlikExecutionException("required command not found: $commandName")
-            }
-        }
-        context.log(
-            "prerequisites satisfied " +
-                "(${document.requiredEnvironmentVariables.size} env vars, " +
-                "${document.requiredShellCommands.size} commands)",
-        )
+        val context = ExecutionContext(projectRoot, backupsDirectory, log)
+        runPage(page, pageId = rootPagePath, pageDirectory = rootPageDirectory, context = context)
     }
 }

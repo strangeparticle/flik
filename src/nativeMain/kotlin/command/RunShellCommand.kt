@@ -3,7 +3,7 @@ package command
 import os.runShellCommand
 
 /** `Run command:` + a fenced shell block. Fails the run on a non-zero exit. */
-class RunCommandStep(val command: String) : StageStep {
+class RunShellCommand(val command: String) : Command {
     override fun execute(context: ExecutionContext) {
         val resolved = interpolate(command, context.projectRoot)
         context.log("  run: ${firstLine(resolved)}")
@@ -15,11 +15,11 @@ class RunCommandStep(val command: String) : StageStep {
         }
     }
 
-    companion object : StageStepParser {
-        override fun tryParse(lines: List<String>, index: Int): ParsedStageStep? {
+    companion object : PageElementParser {
+        override fun tryParse(lines: List<String>, index: Int): ParsedElement? {
             if (lines[index].trim() != "Run command:") return null
             val (block, next) = readFencedBlock(lines, index + 1)
-            return ParsedStageStep(RunCommandStep(block.trim()), next)
+            return ParsedElement(RunShellCommand(block.trim()), next)
         }
     }
 }

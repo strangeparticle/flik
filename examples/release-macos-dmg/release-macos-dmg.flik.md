@@ -17,8 +17,7 @@ Shell Commands:
 * lipo
 
 # Release Procedure
-Run these steps sequentially, in the order shown:
-* back up to file `../springboard-release-backup.tar.gz`
+* back up to file `springboard-release-backup.tar.gz`
 * [Re-apply release-only repo changes]
 * [Build the signed, notarized DMG]
 * [Verify the DMG signature and notarization]

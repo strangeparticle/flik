@@ -6,7 +6,7 @@ import os.writeFileText
 import parse.FlikParseException
 
 /** `In file: <file>` / `Find this section:` / `Replace it with:` — a single in-place edit. */
-class EditInPlaceStep(val file: String, val find: String, val replace: String) : StageStep {
+class EditInPlaceCommand(val file: String, val find: String, val replace: String) : Command {
     override fun execute(context: ExecutionContext) {
         val path = context.resolveAgainstProjectRoot(file)
         context.log("  edit: $file")
@@ -20,10 +20,10 @@ class EditInPlaceStep(val file: String, val find: String, val replace: String) :
         writeFileText(path, original.replaceFirst(findBlock, replaceBlock))
     }
 
-    companion object : StageStepParser {
+    companion object : PageElementParser {
         private val REGEX = Regex("In file: `(.+?)`")
-        override fun tryParse(lines: List<String>, index: Int): ParsedStageStep? {
-            val match = REGEX.matchEntire(lines[index].trim()) ?: return null
+        override fun tryParse(lines: List<String>, index: Int): ParsedElement? {
+            val match = REGEX.matchEntire(bulletOrLine(lines[index])) ?: return null
             val file = match.groupValues[1]
 
             val findLabel = indexOfTrimmed(lines, index + 1, "Find this section:")
@@ -34,7 +34,7 @@ class EditInPlaceStep(val file: String, val find: String, val replace: String) :
             if (replaceLabel == -1) throw FlikParseException("expected 'Replace it with:' for In file: `$file`")
             val (replaceBlock, afterReplace) = readFencedBlock(lines, replaceLabel + 1)
 
-            return ParsedStageStep(EditInPlaceStep(file, findBlock, replaceBlock), afterReplace)
+            return ParsedElement(EditInPlaceCommand(file, findBlock, replaceBlock), afterReplace)
         }
     }
 }
