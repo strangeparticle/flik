@@ -22,10 +22,14 @@ Compiled binaries land under `build/bin/<target>/<debug|release>Executable/flik.
 
 ```sh
 flik version
-flik validate <root.flik.md>
-flik explain  <root.flik.md>
-flik run <root.flik.md> [--project-root <dir>]
+flik validate <root.flik.md | folder>
+flik explain  <root.flik.md | folder>
+flik run <root.flik.md | folder> [--project-root <dir>]
 ```
+
+`validate`, `explain`, and `run` accept either a root `.flik.md` page or a **folder**
+containing one — a folder resolves to its `<folder-name>.flik.md` (so
+`flik validate examples/release-macos-dmg` finds `release-macos-dmg.flik.md`).
 
 - **validate** — *links* the whole page graph from the root: parses every reachable
   page, resolves every callout (by name normalization), and reports **all** structural

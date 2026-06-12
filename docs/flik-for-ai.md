@@ -178,6 +178,11 @@ flik run      path/to/root.flik.md --project-root <dir>
 front and reports all the missing ones together, before doing any work. Generate,
 `validate`, read the diagnostics, fix, repeat; then `run`.
 
+All three accept a `.flik.md` page **or a folder** — a folder resolves to its
+`<folder-name>.flik.md` root. So put the root page in a folder named after it
+(`release-macos-dmg/release-macos-dmg.flik.md`) and callers can just point at the
+folder.
+
 ## Implemented now vs. planned
 
 So you don't generate forms that won't run yet:
