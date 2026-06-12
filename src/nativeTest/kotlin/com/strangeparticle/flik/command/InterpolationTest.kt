@@ -1,5 +1,6 @@
 package com.strangeparticle.flik.command
 
+import com.strangeparticle.flik.command.util.interpolate
 import kotlin.test.Test
 import kotlin.test.assertEquals
 

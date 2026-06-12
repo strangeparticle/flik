@@ -1,5 +1,13 @@
-package com.strangeparticle.flik.command
+package com.strangeparticle.flik.command.commands
 
+import com.strangeparticle.flik.command.Check
+import com.strangeparticle.flik.command.Command
+import com.strangeparticle.flik.command.ExecutionContext
+import com.strangeparticle.flik.command.FlikExecutionException
+import com.strangeparticle.flik.command.PageElementParser
+import com.strangeparticle.flik.command.ParsedElement
+import com.strangeparticle.flik.command.util.firstLine
+import com.strangeparticle.flik.command.util.interpolate
 import com.strangeparticle.flik.os.runShellCommand
 
 /**

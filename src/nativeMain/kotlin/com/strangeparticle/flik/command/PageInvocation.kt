@@ -1,5 +1,6 @@
 package com.strangeparticle.flik.command
 
+import com.strangeparticle.flik.command.util.bulletOrLine
 import com.strangeparticle.flik.os.fileExists
 import com.strangeparticle.flik.os.joinPath
 import com.strangeparticle.flik.os.parentDirectoryOf

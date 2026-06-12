@@ -4,6 +4,11 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
 import kotlin.test.assertFailsWith
+import com.strangeparticle.flik.command.commands.BackUpCommand
+import com.strangeparticle.flik.command.commands.EditInPlaceCommand
+import com.strangeparticle.flik.command.commands.ExpectFileCommand
+import com.strangeparticle.flik.command.commands.RestoreCommand
+import com.strangeparticle.flik.command.commands.RunShellCommand
 import com.strangeparticle.flik.parse.FlikParseException
 
 private val SAMPLE = """

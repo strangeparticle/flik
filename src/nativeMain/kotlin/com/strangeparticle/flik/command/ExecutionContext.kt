@@ -1,5 +1,6 @@
 package com.strangeparticle.flik.command
 
+import com.strangeparticle.flik.command.util.interpolate
 import com.strangeparticle.flik.os.joinPath
 
 /** A page currently on the execution stack. */

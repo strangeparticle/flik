@@ -1,4 +1,4 @@
-package com.strangeparticle.flik.command
+package com.strangeparticle.flik.command.util
 
 import com.strangeparticle.flik.parse.FlikParseException
 

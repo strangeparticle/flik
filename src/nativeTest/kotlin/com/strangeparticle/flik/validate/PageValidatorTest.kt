@@ -1,10 +1,10 @@
 package com.strangeparticle.flik.validate
 
-import com.strangeparticle.flik.command.BackUpCommand
 import com.strangeparticle.flik.command.Page
 import com.strangeparticle.flik.command.PageElement
 import com.strangeparticle.flik.command.PageInvocation
-import com.strangeparticle.flik.command.RestoreCommand
+import com.strangeparticle.flik.command.commands.BackUpCommand
+import com.strangeparticle.flik.command.commands.RestoreCommand
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue

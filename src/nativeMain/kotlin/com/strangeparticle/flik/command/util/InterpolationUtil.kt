@@ -1,4 +1,4 @@
-package com.strangeparticle.flik.command
+package com.strangeparticle.flik.command.util
 
 private val PROJECT_ROOT_REGEX = Regex("\\{\\{\\s*project_root\\s*}}")
 
