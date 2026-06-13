@@ -11,4 +11,10 @@ data class Page(
     val requiredEnvironmentVariables: List<String>,
     val requiredShellCommands: List<String>,
     val elements: List<PageElement>,
+    /**
+     * The raw Markdown the page was parsed from. Retained so whole-program tooling
+     * (e.g. `preflight` scanning for `${{ env.NAME }}` references) can inspect the
+     * document text without coupling to every individual command type.
+     */
+    val source: String,
 )

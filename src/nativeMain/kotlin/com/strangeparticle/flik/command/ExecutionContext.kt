@@ -62,4 +62,14 @@ class ExecutionContext(
         val path = interpolate(rawPath)
         return if (path.startsWith("/")) path else joinPath(projectRoot, path)
     }
+
+    /**
+     * Resolves a possibly-interpolated path against the directory of the page currently
+     * executing (absolute paths pass through). Used for resources a command reads relative
+     * to its own page, such as a `Copy file from:` source.
+     */
+    fun resolveAgainstCurrentPageDirectory(rawPath: String): String {
+        val path = interpolate(rawPath)
+        return if (path.startsWith("/")) path else joinPath(currentPageDirectory, path)
+    }
 }

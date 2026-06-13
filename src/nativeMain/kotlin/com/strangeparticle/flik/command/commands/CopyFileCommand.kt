@@ -6,7 +6,6 @@ import com.strangeparticle.flik.command.FlikExecutionException
 import com.strangeparticle.flik.command.PageElementParser
 import com.strangeparticle.flik.command.ParsedElement
 import com.strangeparticle.flik.command.util.bulletOrLine
-import com.strangeparticle.flik.os.joinPath
 import com.strangeparticle.flik.os.parentDirectoryOf
 import com.strangeparticle.flik.os.runShellCommand
 import com.strangeparticle.flik.os.singleQuote
@@ -14,7 +13,7 @@ import com.strangeparticle.flik.os.singleQuote
 /** `Copy file from: <from> to: <to>` — `from` is relative to the current page, `to` to the project root. */
 class CopyFileCommand(val from: String, val to: String) : Command {
     override fun execute(context: ExecutionContext) {
-        val source = if (from.startsWith("/")) from else joinPath(context.currentPageDirectory, from)
+        val source = context.resolveAgainstCurrentPageDirectory(from)
         val destination = context.resolveAgainstProjectRoot(to)
         val destinationDirectory = parentDirectoryOf(destination)
         context.log("  copy $from -> $to")

@@ -125,6 +125,7 @@ interpreter ignores. Useful for explaining a prerequisite:
 | ``Depending on `<selector>`:`` + `` * `literal`: <element> `` bullets, optional `* otherwise: <element>` | command | run the branch whose literal equals the interpolated selector, else `otherwise` (see Branching) |
 | `${{ project_root }}` | interpolation | the root path of the project Flik operates on |
 | `${{ capture.NAME }}` | interpolation | a value bound by an earlier `capture output as: NAME` |
+| `${{ env.NAME }}` | interpolation | the value of the `NAME` environment variable, usable anywhere (paths, run/edit blocks); unset is reported by preflight and fails the run if reached |
 
 One-line forms (`Copy file…`, `Expect…`, `back up…`, `restore…`, `[Page]`, and the
 prerequisite bullets) may be written as bare lines or as `*` bullets — both work.
@@ -204,10 +205,13 @@ Rules:
    error handling — there is no need.
 4. **Hardcode values; do not DRY.** There is no variable-declaration syntax. Write
    literal values (e.g. `TheThing`, `1.4.2`) directly, repeated as needed. The only
-   interpolation is `${{ project_root }}` — note the **double brace** (GitHub Actions
-   style), which keeps it from colliding with the plain shell/Kotlin `$VAR` and
-   `${VAR}` that live in your `Run command:` and edit blocks (those pass through
-   untouched).
+   interpolations are `${{ project_root }}`, `${{ capture.NAME }}`, and
+   `${{ env.NAME }}` — note the **double brace** (GitHub Actions style), which keeps
+   them from colliding with the plain shell/Kotlin `$VAR` and `${VAR}` that live in
+   your `Run command:` and edit blocks (those pass through untouched). An env var you
+   reference only through shell `$VAR` still needs an explicit
+   `* environment variable:` prerequisite; a `${{ env.NAME }}` reference is detected
+   for you.
 5. **Declare the Flik version in a footer, never as a prerequisite** — a final line
    `_Authored for compatibility with Flik `v0.1`._` after a `---`. Pages carry no
    `flik run` instructions; they must be followable without Flik.

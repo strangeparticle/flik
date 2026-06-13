@@ -53,6 +53,7 @@ fun parsePage(source: String): Page {
             collectBulletsAfterLabel(lines, COMMANDS_LABEL) +
                 inlinePrerequisiteValues(lines, "shell command:"),
         elements = elements,
+        source = source,
     )
 }
 
