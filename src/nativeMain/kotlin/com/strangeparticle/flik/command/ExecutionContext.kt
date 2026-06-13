@@ -20,9 +20,7 @@ class ExecutionContext(
 ) {
     private val frames = ArrayDeque<PageFrame>()
     private val backups = mutableListOf<BackupRecord>()
-
-    /** Combined output of the most recently run command, for `expect to see` to assert against. */
-    var lastCommandOutput: String? = null
+    private val captures = mutableMapOf<String, String>()
 
     /** Identity (file path) of the page currently executing. */
     val currentPageId: String get() = frames.last().pageId
@@ -51,9 +49,17 @@ class ExecutionContext(
     fun mostRecentBackupForCurrentPage(): BackupRecord? =
         backups.lastOrNull { it.pageId == currentPageId }
 
+    /** Binds [value] under [name] for `${'$'}{{ capture.NAME }}` interpolation by later commands. */
+    fun recordCapture(name: String, value: String) {
+        captures[name] = value
+    }
+
+    /** Interpolates Flik tokens (`project_root`, `capture.*`) in [text] using this run's state. */
+    fun interpolate(text: String): String = interpolate(text, projectRoot, captures)
+
     /** Resolves a possibly-interpolated path against the project root (absolute paths pass through). */
     fun resolveAgainstProjectRoot(rawPath: String): String {
-        val path = interpolate(rawPath, projectRoot)
+        val path = interpolate(rawPath)
         return if (path.startsWith("/")) path else joinPath(projectRoot, path)
     }
 }

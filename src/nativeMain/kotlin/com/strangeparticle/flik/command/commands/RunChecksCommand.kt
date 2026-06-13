@@ -7,7 +7,6 @@ import com.strangeparticle.flik.command.FlikExecutionException
 import com.strangeparticle.flik.command.PageElementParser
 import com.strangeparticle.flik.command.ParsedElement
 import com.strangeparticle.flik.command.util.firstLine
-import com.strangeparticle.flik.command.util.interpolate
 import com.strangeparticle.flik.os.runShellCommand
 
 /**
@@ -18,13 +17,13 @@ class RunChecksCommand(val checks: List<Check>) : Command {
     override fun execute(context: ExecutionContext) {
         context.log("  ${checks.size} checks:")
         for (check in checks) {
-            val command = interpolate(check.command, context.projectRoot)
+            val command = context.interpolate(check.command)
             val result = runShellCommand(command, context.projectRoot)
             if (result.exitCode != 0) {
                 throw FlikExecutionException("check failed: ${firstLine(check.description)}\n${result.output}")
             }
             val expected = check.expectContains
-            if (expected != null && !result.output.contains(interpolate(expected, context.projectRoot))) {
+            if (expected != null && !result.output.contains(context.interpolate(expected))) {
                 throw FlikExecutionException(
                     "check output did not contain \"$expected\": ${firstLine(check.description)}",
                 )

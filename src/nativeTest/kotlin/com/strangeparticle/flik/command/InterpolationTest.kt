@@ -3,8 +3,26 @@ package com.strangeparticle.flik.command
 import com.strangeparticle.flik.command.util.interpolate
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 
 class InterpolationTest {
+    @Test
+    fun substitutesCaptureValues() {
+        assertEquals(
+            "build-2026-abc",
+            interpolate(
+                "build-${'$'}{{ capture.year }}-${'$'}{{ capture.sha }}",
+                "/proj",
+                mapOf("year" to "2026", "sha" to "abc"),
+            ),
+        )
+    }
+
+    @Test
+    fun failsOnUnknownCapture() {
+        assertFailsWith<FlikExecutionException> { interpolate("${'$'}{{ capture.missing }}", "/proj") }
+    }
+
     @Test
     fun substitutesProjectRootWithSpaces() {
         assertEquals(

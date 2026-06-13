@@ -7,9 +7,8 @@ import kotlin.test.assertFailsWith
 import com.strangeparticle.flik.command.commands.BackUpCommand
 import com.strangeparticle.flik.command.commands.EditInPlaceCommand
 import com.strangeparticle.flik.command.commands.ExpectFileCommand
-import com.strangeparticle.flik.command.commands.ExpectToSeeCommand
 import com.strangeparticle.flik.command.commands.RestoreCommand
-import com.strangeparticle.flik.command.commands.RunShellCommand
+import com.strangeparticle.flik.command.commands.RunCommand
 import com.strangeparticle.flik.parse.FlikParseException
 
 private val SAMPLE = """
@@ -76,7 +75,7 @@ class PageParserTest {
         assertIs<BackUpCommand>(page.elements[0])
         assertIs<PageInvocation>(page.elements[1])
         assertIs<EditInPlaceCommand>(page.elements[2])
-        assertIs<RunShellCommand>(page.elements[3])
+        assertIs<RunCommand>(page.elements[3])
         assertIs<ExpectFileCommand>(page.elements[4])
         assertIs<RestoreCommand>(page.elements[5])
     }
@@ -111,12 +110,22 @@ class PageParserTest {
     }
 
     @Test
-    fun parsesInlineRunCommandAndExpectToSee() {
-        val page = parsePage("# P\n\n* run command: `echo hi`\n* expect to see `hi`")
-        assertEquals(2, page.elements.size)
-        assertEquals("echo hi", (page.elements[0] as RunShellCommand).command)
-        val expect = assertIs<ExpectToSeeCommand>(page.elements[1])
-        assertEquals("hi", expect.expected)
+    fun runCommandOwnsItsModifiers() {
+        val page = parsePage("# P\n\n* run command: `echo hi`\n* expect to see `hi`\n* capture output as: `greeting`")
+        val run = assertIs<RunCommand>(page.elements.single())
+        assertEquals("echo hi", run.command)
+        assertEquals(listOf("hi"), run.expectToSee)
+        assertEquals("greeting", run.captureAs)
+        assertEquals(null, run.fallbackCommand)
+    }
+
+    @Test
+    fun runCommandParsesAFallbackBlock() {
+        val page = parsePage("# P\n\nRun command:\n\n```shell\nprimary\n```\n\nIf the command fails:\n\n```shell\nfallback\n```")
+        val run = assertIs<RunCommand>(page.elements.single())
+        assertEquals("primary", run.command)
+        assertEquals("fallback", run.fallbackCommand)
+        assertEquals(emptyList(), run.expectToSee)
     }
 
     @Test

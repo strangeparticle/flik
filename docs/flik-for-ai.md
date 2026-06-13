@@ -111,8 +111,10 @@ interpreter ignores. Useful for explaining a prerequisite:
 | ``* shell command: `cmd` `` (or `Shell Commands:` + `* cmd` bullets) | prerequisite | required commands on PATH — checked on entry |
 | `[Page Name]` | page invocation | run the page whose filename is derived from the name |
 | ``Copy file from: `src` to: `dst` `` | command | copy (`src` relative to *this* page, `dst` to the project root) |
-| `Run command:` + a fenced ```` ```shell ```` block, or ``* run command: `cmd` `` | command | run a shell command; non-zero exit fails the run; its output is remembered |
-| ``* expect to see `text` `` | command | assert the previous command's output contains `text` |
+| `Run command:` + a fenced ```` ```shell ```` block, or ``* run command: `cmd` `` | command | run a shell command; non-zero exit fails the run |
+| ``* capture output as: `NAME` `` (directly after a run command) | modifier | bind that command's (trimmed) output to ``${{ capture.NAME }}`` |
+| ``* expect to see: `text` `` (directly after a run command) | modifier | assert that command's output contains `text` (repeatable) |
+| `If the command fails:` + a fenced ```` ```shell ```` block (directly after a run command) | modifier | run this fallback if the command exits non-zero, instead of failing |
 | ``Expect file to exist: `path` `` | command | assert a file exists |
 | ``In file: `path` `` + `Find this section:` / `Replace it with:` blocks | command | in-place find/replace edit |
 | `Run these checks in parallel:` then `* … run `cmd` … contain `x`` bullets | command | run each check; assert output contains `x` when stated |
@@ -120,9 +122,31 @@ interpreter ignores. Useful for explaining a prerequisite:
 | `restore the repository` | command | restore the most recent backup *this page* took |
 | `restore from backup <name>` | command | restore a specific named backup |
 | `${{ project_root }}` | interpolation | the root path of the project Flik operates on |
+| `${{ capture.NAME }}` | interpolation | a value bound by an earlier `capture output as: NAME` |
 
 One-line forms (`Copy file…`, `Expect…`, `back up…`, `restore…`, `[Page]`, and the
 prerequisite bullets) may be written as bare lines or as `*` bullets — both work.
+
+## Run command modifiers
+
+`capture output as`, `expect to see`, and `If the command fails:` are **modifiers of a
+run command** — they operate on *that command's* result and must directly follow it
+(blank lines between are fine). They are not standalone steps; there is no "previous
+command" reaching backward. One command can carry several:
+
+````markdown
+Run command:
+
+```shell
+cat VERSION
+```
+
+* expect to see: `1.`
+* capture output as: `app_version`
+````
+
+`expect to see` and `capture output as` see whichever command actually ran — including
+the fallback, when `If the command fails:` is used.
 
 ## The five rules you must follow
 

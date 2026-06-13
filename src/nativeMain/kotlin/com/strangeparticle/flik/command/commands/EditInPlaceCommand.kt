@@ -7,7 +7,6 @@ import com.strangeparticle.flik.command.PageElementParser
 import com.strangeparticle.flik.command.ParsedElement
 import com.strangeparticle.flik.command.util.bulletOrLine
 import com.strangeparticle.flik.command.util.indexOfTrimmed
-import com.strangeparticle.flik.command.util.interpolate
 import com.strangeparticle.flik.command.util.readFencedBlock
 import com.strangeparticle.flik.os.fileExists
 import com.strangeparticle.flik.os.readFileText
@@ -21,8 +20,8 @@ class EditInPlaceCommand(val file: String, val find: String, val replace: String
         context.log("  edit: $file")
         if (!fileExists(path)) throw FlikExecutionException("file to edit not found: $path")
         val original = readFileText(path)
-        val findBlock = interpolate(find, context.projectRoot)
-        val replaceBlock = interpolate(replace, context.projectRoot)
+        val findBlock = context.interpolate(find)
+        val replaceBlock = context.interpolate(replace)
         if (!original.contains(findBlock)) {
             throw FlikExecutionException("find block not found in $file")
         }
