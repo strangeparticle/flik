@@ -21,6 +21,8 @@ class PageInvocation(val name: String) : PageElement {
         runPage(page, pageId = path, pageDirectory = parentDirectoryOf(path), context = context)
     }
 
+    override fun referencedPageInvocations(): List<PageInvocation> = listOf(this)
+
     companion object : PageElementParser {
         private val REGEX = Regex("\\[(.+)]")
         override fun tryParse(lines: List<String>, index: Int): ParsedElement? {

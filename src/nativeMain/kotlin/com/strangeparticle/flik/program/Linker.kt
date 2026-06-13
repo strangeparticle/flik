@@ -1,7 +1,6 @@
 package com.strangeparticle.flik.program
 
 import com.strangeparticle.flik.command.Page
-import com.strangeparticle.flik.command.PageInvocation
 import com.strangeparticle.flik.command.parsePage
 import com.strangeparticle.flik.os.joinPath
 import com.strangeparticle.flik.os.parentDirectoryOf
@@ -50,16 +49,17 @@ fun compile(
             val directory = parentDirectoryOf(path)
             val targets = mutableListOf<String>()
             for (element in page.elements) {
-                if (element !is PageInvocation) continue
-                val fileName = calloutFileName(element.name)
-                val targetPath = joinPath(directory, fileName)
-                targets += targetPath
-                when {
-                    !fileExists(targetPath) ->
-                        diagnostics += Diagnostic(path, "page invocation \"${element.name}\" -> $fileName not found")
-                    targetPath in onStack ->
-                        diagnostics += Diagnostic(path, "cycle: \"${element.name}\" ($fileName) is already on the invocation path")
-                    else -> visit(targetPath)
+                for (invocation in element.referencedPageInvocations()) {
+                    val fileName = calloutFileName(invocation.name)
+                    val targetPath = joinPath(directory, fileName)
+                    targets += targetPath
+                    when {
+                        !fileExists(targetPath) ->
+                            diagnostics += Diagnostic(path, "page invocation \"${invocation.name}\" -> $fileName not found")
+                        targetPath in onStack ->
+                            diagnostics += Diagnostic(path, "cycle: \"${invocation.name}\" ($fileName) is already on the invocation path")
+                        else -> visit(targetPath)
+                    }
                 }
             }
             edges[path] = targets

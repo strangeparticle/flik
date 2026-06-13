@@ -121,6 +121,8 @@ interpreter ignores. Useful for explaining a prerequisite:
 | `back up to file <name>` | command | back up the project to `executions/<run>/backups/<name>` |
 | `restore the repository` | command | restore the most recent backup *this page* took |
 | `restore from backup <name>` | command | restore a specific named backup |
+| `If <predicate>:` + one element, optional `Otherwise:` + one element | command | run the first element when the predicate holds, else the `Otherwise` element (see Branching) |
+| ``Depending on `<selector>`:`` + `` * `literal`: <element> `` bullets, optional `* otherwise: <element>` | command | run the branch whose literal equals the interpolated selector, else `otherwise` (see Branching) |
 | `${{ project_root }}` | interpolation | the root path of the project Flik operates on |
 | `${{ capture.NAME }}` | interpolation | a value bound by an earlier `capture output as: NAME` |
 
@@ -147,6 +149,50 @@ cat VERSION
 
 `expect to see` and `capture output as` see whichever command actually ran — including
 the fallback, when `If the command fails:` is used.
+
+## Branching: conditionals and switches
+
+When a procedure forks, write the fork as documentation and let Flik decide the branch.
+
+**Conditional** — `If <predicate>:` then one element, with an optional `Otherwise:` and one
+element:
+
+````markdown
+If the command `xcodebuild` is available:
+
+Run command:
+
+```shell
+./build-with-xcode.sh
+```
+
+Otherwise:
+
+* [Build with the command-line tools]
+````
+
+**Switch** — `Depending on \`<selector>\`:` then a bullet per value; the selector is an
+interpolated value, matched (exact, trimmed) against the backtick literals:
+
+```markdown
+Depending on `${{ capture.os }}`:
+
+* `Darwin`: [Do the macOS step]
+* `Linux`: [Do the Linux step]
+* otherwise: [Do the generic step]
+```
+
+Rules:
+
+- **A predicate is one of a fixed set** — Flik must decide it deterministically, so only:
+  `` the command `X` is available ``, `` the file `X` exists ``, and `` `<value>` is `<literal>` ``
+  (the value interpolated, compared for equality). No `and`/`or`/`not`, no expressions.
+- **A branch is exactly one element** — a command or a `[Page]` invocation. For a multi-step
+  branch, make it a page and invoke it; Flik links and preflights that page like any other.
+- **Defaults**: a switch with no matching literal and no `* otherwise:` **fails clearly**; an
+  `If` with no `Otherwise:` is a no-op when the predicate is false.
+- This is distinct from the inline `If the command fails:` modifier on a single run command —
+  that stays the shorthand for "this one command, with a fallback."
 
 ## The five rules you must follow
 
@@ -213,9 +259,11 @@ So you don't generate forms that won't run yet:
 
 - **Implemented:** everything in the Vocabulary table above; pages that invoke pages
   recursively; per-page prerequisites; the version footer; document-order execution;
-  backup/restore; `${{ project_root }}`.
+  backup/restore; `${{ project_root }}` and `${{ capture.NAME }}`; block-level
+  conditionals (`If … Otherwise`) and switches (`Depending on …`).
 - **Planned (do not rely on yet):** parallel execution (`Run these checks in parallel:`
   is accepted but currently runs sequentially; parallel *page* invocation isn't in
-  yet); loops and conditionals over invocations; loose-whitespace matching for `Find
-  this section:` (matching is currently exact — make find blocks match the file
-  verbatim).
+  yet); loops over invocations; loose-whitespace matching for `Find this section:`
+  (matching is currently exact — make find blocks match the file verbatim);
+  preflight tagging of branch-only prerequisites as conditional (today every reachable
+  page's prerequisites are reported as required, even branches you won't take).
