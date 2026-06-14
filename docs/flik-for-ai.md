@@ -145,11 +145,30 @@ cat VERSION
 ```
 
 * expect to see: `1.`
-* capture output as: `app_version`
+* capture output as: `APP_VERSION`
 ````
 
 `expect to see` and `capture output as` see whichever command actually ran — including
 the fallback, when `If the command fails:` is used.
+
+## Naming captures and env vars
+
+Names are documentation. Write the readable runbook you'd write anyway — a capture or
+env var name should read naturally in prose and be self-explanatory.
+
+- **UPPERCASE the name**, matching the `${{ env.NAME }}` convention. A capture is just
+  another named value, so `* capture output as: \`IMAGE_TAG\`` → `${{ capture.IMAGE_TAG }}`,
+  not `image_tag`. Uppercase makes interpolations stand out from the surrounding prose
+  and the shell `$VAR`s in your blocks.
+- **Spell out full words; don't abbreviate.** `DEPLOYMENT_REPO`, not `DEPLOY_REPO`;
+  `SERVICE_NAME`, not `SVC_NAME`; `OPERATING_SYSTEM`, not `OS`. The name is read far more
+  often than it's typed, and the runbook should explain itself to a human skimming it.
+
+```markdown
+* capture output as: `IMAGE_TAG`
+```
+
+…later referenced as `${{ capture.IMAGE_TAG }}` — reads as a sentence, no decoding needed.
 
 ## Branching: conditionals and switches
 
@@ -176,7 +195,7 @@ Otherwise:
 interpolated value, matched (exact, trimmed) against the backtick literals:
 
 ```markdown
-Depending on `${{ capture.os }}`:
+Depending on `${{ capture.OPERATING_SYSTEM }}`:
 
 * `Darwin`: [Do the macOS step]
 * `Linux`: [Do the Linux step]

@@ -18,11 +18,11 @@ Run command:
 uname -s
 ```
 
-* capture output as: `os`
+* capture output as: `OPERATING_SYSTEM`
 
 ## Run the step for this platform
 
-Depending on `${{ capture.os }}`:
+Depending on `${{ capture.OPERATING_SYSTEM }}`:
 
 * `Darwin`: [Do the macOS step]
 * `Linux`: [Do the Linux step]
