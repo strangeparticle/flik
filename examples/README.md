@@ -31,6 +31,12 @@ a new one.
   (append when present, create when absent). Each uses a backtick path plus a fenced
   block whose body interpolates `${{ env.NAME }}`, `${{ capture.NAME }}`, and
   `${{ project_root }}`.
+- [`guard-shared-deploy-lock.flik.md`](./guard-shared-deploy-lock.flik.md) — use
+  `Expect file to be empty:` as a shared-resource guard at the start of a runbook.
+  An empty (or absent) deploy lock means the resource is free; a non-empty lock fails
+  loudly with a preview of its current holder before any destructive step runs.
+  Demonstrates: `Expect file to be empty:`, `${{ env.NAME }}`, `${{ project_root }}`,
+  and `capture output as:`.
 
 ## Validate an example
 
