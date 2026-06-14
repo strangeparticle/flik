@@ -37,6 +37,10 @@ a new one.
   loudly with a preview of its current holder before any destructive step runs.
   Demonstrates: `Expect file to be empty:`, `${{ env.NAME }}`, `${{ project_root }}`,
   and `capture output as:`.
+- [`poll-until-deployment-healthy.flik.md`](./poll-until-deployment-healthy.flik.md)
+  — wait for an external system using `Poll by running:` + `Until the output contains:`:
+  re-run a `curl` until its output contains an expected sub-portion, with `time out
+  after:` / `check every:` and `capture output as:`.
 
 ## Validate an example
 

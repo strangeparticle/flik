@@ -7,6 +7,8 @@ import com.strangeparticle.flik.command.PageElementParser
 import com.strangeparticle.flik.command.ParsedElement
 import com.strangeparticle.flik.command.util.bulletOrLine
 import com.strangeparticle.flik.command.util.firstLine
+import com.strangeparticle.flik.command.util.parseCaptureModifier
+import com.strangeparticle.flik.command.util.parseLabeledCommandBlock
 import com.strangeparticle.flik.command.util.readFencedBlock
 import com.strangeparticle.flik.os.runShellCommand
 
@@ -62,7 +64,6 @@ class RunCommand(
 
     companion object : PageElementParser {
         private val INLINE_REGEX = Regex("run command: `(.+)`", RegexOption.IGNORE_CASE)
-        private val CAPTURE_REGEX = Regex("capture output as:?\\s*`(.+)`", RegexOption.IGNORE_CASE)
         private val EXPECT_REGEX = Regex("expect to see:?\\s*`(.+)`", RegexOption.IGNORE_CASE)
         private const val FALLBACK_LABEL = "If the command fails:"
 
@@ -82,11 +83,11 @@ class RunCommand(
                     continue
                 }
                 val content = bulletOrLine(raw)
-                val capture = CAPTURE_REGEX.matchEntire(content)
+                val capture = parseCaptureModifier(content)
                 val expect = EXPECT_REGEX.matchEntire(content)
                 when {
                     capture != null -> {
-                        captureAs = capture.groupValues[1]
+                        captureAs = capture
                         i++
                     }
                     expect != null -> {
@@ -106,10 +107,7 @@ class RunCommand(
         }
 
         private fun parsePrimaryCommand(lines: List<String>, index: Int): Pair<String, Int>? {
-            if (lines[index].trim().equals("Run command:", ignoreCase = true)) {
-                val (block, next) = readFencedBlock(lines, index + 1)
-                return block.trim() to next
-            }
+            parseLabeledCommandBlock(lines, index, "Run command:")?.let { return it }
             val inline = INLINE_REGEX.matchEntire(bulletOrLine(lines[index])) ?: return null
             return inline.groupValues[1] to (index + 1)
         }
