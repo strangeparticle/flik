@@ -116,7 +116,11 @@ interpreter ignores. Useful for explaining a prerequisite:
 | ``* expect to see: `text` `` (directly after a run command) | modifier | assert that command's output contains `text` (repeatable) |
 | `If the command fails:` + a fenced ```` ```shell ```` block (directly after a run command) | modifier | run this fallback if the command exits non-zero, instead of failing |
 | ``Expect file to exist: `path` `` | command | assert a file exists |
+| ``Expect file to be empty: `path` `` | command | assert `path` is empty — absent, zero bytes, or whitespace-only all pass; otherwise fail, showing the file's current contents (first 10 lines). A guard against shared-resource conflicts |
 | ``In file: `path` `` + `Find this section:` / `Replace it with:` blocks | command | in-place find/replace edit |
+| ``Write to file: `path` `` + a fenced block | command | write the block's content to `path`, overwriting; creates the file and any missing parent dirs |
+| ``Append to file: `path` `` + a fenced block | command | append the block's content to an **existing** `path`; errors if the file does not exist |
+| ``Create or append to file: `path` `` + a fenced block | command | append when `path` exists, else create it (and any missing parent dirs) with the block's content |
 | `Run these checks in parallel:` then `* … run `cmd` … contain `x`` bullets | command | run each check; assert output contains `x` when stated |
 | `back up to file <name>` | command | back up the project to `executions/<run>/backups/<name>` |
 | `restore the repository` | command | restore the most recent backup *this page* took |
@@ -129,6 +133,28 @@ interpreter ignores. Useful for explaining a prerequisite:
 
 One-line forms (`Copy file…`, `Expect…`, `back up…`, `restore…`, `[Page]`, and the
 prerequisite bullets) may be written as bare lines or as `*` bullets — both work.
+
+## Writing files
+
+`Write to file:`, `Append to file:`, and `Create or append to file:` each take a
+backtick `path` followed by a fenced block whose body is the file content. They are
+the declarative alternative to a `cat > file <<'EOF'` heredoc in a `Run command:`.
+
+Unlike the verbatim fenced blocks in rule 2, **these blocks are interpolated**:
+`${{ env.NAME }}`, `${{ capture.NAME }}`, and `${{ project_root }}` expand inside the
+body just as they do in a shell block. The path resolves against the project root
+(absolute paths pass through). Use `Write to file:` to (over)write, `Append to file:`
+to add to a file that must already exist, and `Create or append to file:` when either
+case is fine.
+
+````markdown
+Write to file: `${{ project_root }}/build/config/service.env`
+
+```shell
+SERVICE_NAME=${{ capture.SERVICE_NAME }}
+DEPLOY_REGION=${{ env.DEPLOY_REGION }}
+```
+````
 
 ## Run command modifiers
 
