@@ -18,14 +18,14 @@ Run command:
 date +%Y
 ```
 
-* capture output as: `build_year`
+* capture output as: `BUILD_YEAR`
 
 ## Record the build tag (using the capture)
 
 Run command:
 
 ```shell
-echo "build-${{ capture.build_year }}" > "${{ project_root }}/BUILD_TAG.txt"
+echo "build-${{ capture.BUILD_YEAR }}" > "${{ project_root }}/BUILD_TAG.txt"
 ```
 
 ## Read it back, assert it, and capture it
@@ -39,7 +39,7 @@ cat "${{ project_root }}/BUILD_TAG.txt"
 ```
 
 * expect to see: `build-`
-* capture output as: `build_tag`
+* capture output as: `BUILD_TAG`
 
 ## Checksum it (Linux tool name, falling back to the macOS name)
 
