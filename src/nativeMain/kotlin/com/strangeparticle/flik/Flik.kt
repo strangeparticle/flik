@@ -7,6 +7,7 @@ import com.github.ajalt.clikt.core.subcommands
 import com.github.ajalt.clikt.parameters.arguments.argument
 import com.github.ajalt.clikt.parameters.options.default
 import com.github.ajalt.clikt.parameters.options.option
+import com.github.ajalt.clikt.parameters.options.versionOption
 import com.strangeparticle.flik.command.FlikExecutionException
 import com.strangeparticle.flik.os.commandIsAvailable
 import com.strangeparticle.flik.os.environmentVariable
@@ -21,15 +22,17 @@ import com.strangeparticle.flik.program.preflight
 import com.strangeparticle.flik.program.resolveRootPage
 import com.strangeparticle.flik.run.Interpreter
 
-const val FLIK_VERSION = "0.1.0"
-
 class Flik : CliktCommand(name = "flik") {
+    init {
+        versionOption(FlikVersion.VERSION)
+    }
+
     override fun run() = Unit
 }
 
 class Version : CliktCommand(name = "version") {
     override fun run() {
-        echo("flik $FLIK_VERSION")
+        echo("flik version ${FlikVersion.VERSION}")
     }
 }
 
