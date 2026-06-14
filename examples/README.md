@@ -23,6 +23,10 @@ a new one.
   — build the release `flik` binary and install it onto `PATH` (Flik installing
   Flik). A single self-contained page: per-page prerequisites, `Run command:`,
   `Expect file to exist:`, and an atomic temp-then-`mv` install.
+- [`poll-until-deployment-healthy.flik.md`](./poll-until-deployment-healthy.flik.md)
+  — wait for an external system using `Poll by running:` + `Until the output contains:`:
+  re-run a `curl` until its output contains an expected sub-portion, with `time out
+  after:` / `check every:` and `capture output as:`.
 
 ## Validate an example
 

@@ -115,6 +115,9 @@ interpreter ignores. Useful for explaining a prerequisite:
 | ``* capture output as: `NAME` `` (directly after a run command) | modifier | bind that command's (trimmed) output to ``${{ capture.NAME }}`` |
 | ``* expect to see: `text` `` (directly after a run command) | modifier | assert that command's output contains `text` (repeatable) |
 | `If the command fails:` + a fenced ```` ```shell ```` block (directly after a run command) | modifier | run this fallback if the command exits non-zero, instead of failing |
+| `Poll by running:` + a fenced ```` ```shell ```` block, then `Until the output contains:` + a fenced block | command | re-run the command on an interval until its output **contains** the example (whitespace-insensitive substring), or the timeout elapses (see Polling) |
+| ``* time out after: `<dur>` `` (on a poll) | modifier | **required** poll timeout — `<dur>` is `30s`/`10m`/`1h` |
+| ``* check every: `<dur>` `` (on a poll) | modifier | poll interval between attempts (optional; default `5s`) |
 | ``Expect file to exist: `path` `` | command | assert a file exists |
 | ``In file: `path` `` + `Find this section:` / `Replace it with:` blocks | command | in-place find/replace edit |
 | `Run these checks in parallel:` then `* … run `cmd` … contain `x`` bullets | command | run each check; assert output contains `x` when stated |
@@ -150,6 +153,44 @@ cat VERSION
 
 `expect to see` and `capture output as` see whichever command actually ran — including
 the fallback, when `If the command fails:` is used.
+
+## Polling: wait for an external condition
+
+When a step must wait for an external system — a CI build to publish, a deploy to become
+healthy — write the concrete command you'd run by hand (almost always a `curl`) and let
+Flik re-run it until its output shows the condition is met:
+
+````markdown
+Poll by running:
+
+```shell
+curl -sf https://status.example.com/healthz
+```
+
+Until the output contains:
+
+```json
+"status": "healthy"
+```
+
+* time out after: `5m`
+* check every: `10s`
+* capture output as: `health_response`
+````
+
+- **`time out after:`** is **required** — the "something's wrong if it runs this long"
+  bound. **`check every:`** is optional (default `5s`). Durations are `30s` / `10m` / `1h`.
+- The match is a **whitespace-insensitive substring**: all whitespace is removed from both
+  the example and the output before comparing, so formatting never matters — but the
+  example must appear **contiguously**. Write the smallest distinctive **sub-portion**
+  (`"status": "healthy"`), **not** a full braced object like `{ "status": "healthy" }`,
+  which other fields in the response would split.
+- **Exit codes play no part** — only the output is matched. A failed `curl` just produces
+  output that won't match, so Flik keeps polling until the timeout (then fails clearly).
+- `capture output as:` (optional) binds the matched output to `${{ capture.NAME }}` for
+  later steps, exactly like a `Run command:`.
+- Put auth, headers, and TLS flags inside the `curl` itself — Flik models none of it. The
+  page stays followable: a human runs the same command until they see the same text.
 
 ## Branching: conditionals and switches
 
@@ -264,7 +305,8 @@ So you don't generate forms that won't run yet:
 - **Implemented:** everything in the Vocabulary table above; pages that invoke pages
   recursively; per-page prerequisites; the version footer; document-order execution;
   backup/restore; `${{ project_root }}` and `${{ capture.NAME }}`; block-level
-  conditionals (`If … Otherwise`) and switches (`Depending on …`).
+  conditionals (`If … Otherwise`) and switches (`Depending on …`); polling
+  (`Poll by running: … Until the output contains: …`).
 - **Planned (do not rely on yet):** parallel execution (`Run these checks in parallel:`
   is accepted but currently runs sequentially; parallel *page* invocation isn't in
   yet); loops over invocations; loose-whitespace matching for `Find this section:`
