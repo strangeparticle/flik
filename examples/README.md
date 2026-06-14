@@ -23,6 +23,14 @@ a new one.
   — build the release `flik` binary and install it onto `PATH` (Flik installing
   Flik). A single self-contained page: per-page prerequisites, `Run command:`,
   `Expect file to exist:`, and an atomic temp-then-`mv` install.
+- [`write-service-config-and-logs.flik.md`](./write-service-config-and-logs.flik.md)
+  — generate a service's runtime config and write to its logs during a deploy. A single
+  self-contained page demonstrating all three declarative file-writing elements:
+  `Write to file:` (overwrite, auto-creating parent directories), `Append to file:`
+  (append to an existing file, error if absent), and `Create or append to file:`
+  (append when present, create when absent). Each uses a backtick path plus a fenced
+  block whose body interpolates `${{ env.NAME }}`, `${{ capture.NAME }}`, and
+  `${{ project_root }}`.
 
 ## Validate an example
 

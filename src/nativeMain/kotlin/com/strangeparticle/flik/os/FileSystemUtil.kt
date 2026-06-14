@@ -1,5 +1,6 @@
 package com.strangeparticle.flik.os
 
+import com.strangeparticle.flik.command.FlikExecutionException
 import kotlinx.cinterop.ByteVar
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.cinterop.addressOf
@@ -51,6 +52,34 @@ fun writeFileText(path: String, text: String) {
         }
     } finally {
         fclose(file)
+    }
+}
+
+/** Appends [text] to [path] as UTF-8, creating the file if it does not exist. */
+@OptIn(ExperimentalForeignApi::class)
+fun appendFileText(path: String, text: String) {
+    val file = fopen(path, "ab") ?: throw RuntimeException("cannot append to file: $path")
+    try {
+        val bytes = text.encodeToByteArray()
+        if (bytes.isNotEmpty()) {
+            bytes.usePinned { pinned ->
+                fwrite(pinned.addressOf(0), 1.convert(), bytes.size.convert(), file)
+            }
+        }
+    } finally {
+        fclose(file)
+    }
+}
+
+/**
+ * Creates [directory] and any missing parent directories (`mkdir -p` semantics). A no-op
+ * when the directory already exists. Throws [FlikExecutionException] if creation fails.
+ */
+fun makeDirectoriesFor(directory: String) {
+    if (directory == "." || isDirectory(directory)) return
+    val result = runShellCommand("mkdir -p ${singleQuote(directory)}")
+    if (result.exitCode != 0) {
+        throw FlikExecutionException("cannot create directory $directory:\n${result.output}")
     }
 }
 
