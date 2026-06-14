@@ -23,6 +23,12 @@ a new one.
   — build the release `flik` binary and install it onto `PATH` (Flik installing
   Flik). A single self-contained page: per-page prerequisites, `Run command:`,
   `Expect file to exist:`, and an atomic temp-then-`mv` install.
+- [`guard-shared-deploy-lock.flik.md`](./guard-shared-deploy-lock.flik.md) — use
+  `Expect file to be empty:` as a shared-resource guard at the start of a runbook.
+  An empty (or absent) deploy lock means the resource is free; a non-empty lock fails
+  loudly with a preview of its current holder before any destructive step runs.
+  Demonstrates: `Expect file to be empty:`, `${{ env.NAME }}`, `${{ project_root }}`,
+  and `capture output as:`.
 
 ## Validate an example
 
